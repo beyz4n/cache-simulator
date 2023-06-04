@@ -1,9 +1,22 @@
 import java.lang.*;
 public class Main {
 
-    int[][] L1I = new int[2][4];
-    int[][] L1D = new int[2][4];
-    int[][] L2 = new int[4][4];
+    static int hitCount = 0;
+    static int missCount = 0;
+    static int evictionCount = 0;
+
+    // şimdilik test amaçlı koydum burayı, sonradan kaldırırız
+    static String[][] L1I = new String[2][4];
+    static String[][] L1D = new String[2][4];
+    static String[][] L2 = new String[4][4];
+
+    static int L1s = 0;
+    static int L1E = 0;
+    static int L1b = 0;
+    static int L2s = 0;
+    static int L2E = 0;
+    static int L2b = 0;
+
 
     public static void main(String[] args) {
 
@@ -11,18 +24,49 @@ public class Main {
         System.out.println(args[1]);
     }
 
-    public static void data_load(String address, String size, int blockOffset, int setIndex, int E ){
-
+    public static void data_load(String address, String size){
+        // first check if is it hit for L1
+        int L1S = calculate_set_index(L1s, L1b, address);
+        String L1tag = calculate_tag(L1s, L1b, address);
+        if(!isHit(L1S, L1E, L1I, L1tag)){
+            missCount++;
+            //TODO: fill the miss part L1
+        }
+        // check if is it hit for L2
+        int L2S = calculate_set_index(L2s, L2b, address);
+        String L2tag = calculate_tag(L2s, L2b, address);
+        if(!isHit(L2S, L2E, L2, L2tag)){
+         missCount++;
+         // TODO: fill the miss part for L2
+        }
 
     }
 
+    public static boolean isHit(int S, int E, String cache[][] ,String tag){
+        boolean isHit = false;
+        for(int i = 0; i < E; i++){
+            if(cache[S*E + i][0].equalsIgnoreCase(tag) && cache[S*E + i][2].equalsIgnoreCase("1")){
+                hitCount++;
+                isHit = true;
+                break;
+            }
+        }
+        return isHit;
+    }
+
+    public static int calculate_set_index(int s, int b, String address){
+        String binaryAddress = hex2Binary(address);
+        String setIndexBits = binaryAddress.substring(binaryAddress.length() - ( s + b), binaryAddress.length() -  b);
+        int setIndex = binary2Decimal(setIndexBits);
+        return setIndex;
+    }
 
     // Method to calculate tag
-    public static String calculate_tag(String address, int s, int b){
+    public static String calculate_tag(int s, int b, String address){
        String binaryAddress = hex2Binary(address);
-       String Tag = binaryAddress.substring(0, binaryAddress.length() - ( s + b));
-       Tag = binary2Hex(Tag);
-       return Tag;
+       String tag = binaryAddress.substring(0, binaryAddress.length() - ( s + b));
+       tag = binary2Hex(tag);
+       return tag;
     }
 
     public static String binary2Hex(String binary){
@@ -94,6 +138,21 @@ public class Main {
             }
         }
         return binary;
+    }
+
+    // Method to convert unsigned binary number to decimal number
+    public static int binary2Decimal(String binary){
+
+        int decimal = 0;
+        int exp = binary.length();
+
+        for(int i = 0; i < binary.length(); i++){
+            exp --;
+            if(binary.charAt(i) == '1') {
+                decimal += Math.pow(2, exp);
+            }
+        }
+        return decimal;
     }
 
 }
