@@ -31,6 +31,7 @@ public class Main {
         if(!isHit(L1S, L1E, L1I, L1tag)){
             missCount++;
             //TODO: fill the miss part L1
+
         }
         // check if is it hit for L2
         int L2S = calculate_set_index(L2s, L2b, address);
@@ -40,6 +41,41 @@ public class Main {
          // TODO: fill the miss part for L2
         }
 
+    }
+
+    // Method to check if the set contains empty line
+    public static boolean isContainEmptyLine(int S, int E, String cache[][]){
+        boolean isContain = false;
+        for(int i = 0; i < E; i++){
+            if(cache[S*E + i][0].equalsIgnoreCase(""))
+                isContain = true;
+        }
+        return isContain;
+    }
+
+    // Method to find empty line inside the set
+    public static int findEmptyLineIndex(int S, int E, String cache[][]){
+        int index = 0;
+        for(int i = 0; i < E; i++){
+            if(cache[S*E + i][0].equalsIgnoreCase(""))
+                index = i;
+        }
+        return index;
+    }
+
+    // Method to find line for eviction in that set
+    public static int findEvictionLine(int S, int E, String cache[][]){
+        int index = 0;
+        int min = Integer.parseInt(cache[S*E][1]);
+        int new_min;
+        for(int i = 1; i < E; i++){
+            new_min = Integer.parseInt(cache[S*E + i][1]);
+            if( new_min< min){
+                min = new_min;
+                index = i;
+            }
+        }
+        return index;
     }
 
     public static boolean isHit(int S, int E, String cache[][] ,String tag){
