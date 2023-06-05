@@ -25,23 +25,45 @@ public class Main {
     }
 
     public static void data_load(String address, String size){
-        // first check if is it hit for L1
+        // first check for L1
         int L1S = calculate_set_index(L1s, L1b, address);
         String L1tag = calculate_tag(L1s, L1b, address);
+        int lineIndex;
+        // if it is miss for L1
         if(!isHit(L1S, L1E, L1I, L1tag)){
             missCount++;
-            //TODO: fill the miss part L1
-
+            if(isContainEmptyLine(L1S, L1E, L1I)){
+                lineIndex = findEmptyLineIndex(L1S, L1E, L1I);
+            }
+            else{
+                evictionCount++;
+                lineIndex = findEvictionLine(L1S, L1E, L1I);
+            }
+            L1I[L1S*L1E + lineIndex][0] = L1tag;
+            L1I[L1S*L1E + lineIndex][1] = findTime(L1S, L1E, L1I);
+            L1I[L1S*L1E + lineIndex][2] = "1";
+            // TODO: add data part
         }
-        // check if is it hit for L2
+        // check for L2
         int L2S = calculate_set_index(L2s, L2b, address);
         String L2tag = calculate_tag(L2s, L2b, address);
+        // if it is miss for L2
         if(!isHit(L2S, L2E, L2, L2tag)){
-         missCount++;
-         // TODO: fill the miss part for L2
+            missCount++;
+            if(isContainEmptyLine(L2S, L2E, L2)){
+                lineIndex = findEmptyLineIndex(L2S, L2E, L2);
+            }
+            else {
+                evictionCount++;
+                lineIndex = findEvictionLine(L2S, L2E, L2);
+            }
+            L2[L2S*L2E + lineIndex][0] = L2tag;
+            L2[L2S*L2E + lineIndex][1] = findTime(L2S, L2E, L2);
+            L1I[L1S*L1E + lineIndex][2] = "1";
+            // TODO: add data part
         }
-
     }
+
 
     // Method to check if the set contains empty line
     public static boolean isContainEmptyLine(int S, int E, String cache[][]){
@@ -76,6 +98,18 @@ public class Main {
             }
         }
         return index;
+    }
+
+    public static String findTime(int S, int E, String cache[][]){
+        int time = 0;
+        int newTime;
+        for(int i = 0; i < E; i++){
+            newTime = (cache[S*E + i][1].equalsIgnoreCase("")) ? 0: Integer.parseInt(cache[S*E + i][1]);
+            if(newTime > time)
+                time = newTime;
+        }
+        time++;
+        return "" + time;
     }
 
     public static boolean isHit(int S, int E, String cache[][] ,String tag){
