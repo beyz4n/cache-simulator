@@ -6,9 +6,9 @@ public class Main {
     static int evictionCount = 0;
 
     // şimdilik test amaçlı koydum burayı, sonradan kaldırırız
-    static String[][] L1I = new String[2][4];
-    static String[][] L1D = new String[2][4];
-    static String[][] L2 = new String[4][4];
+    static String[][][] L1I = new String[2][1][4];
+    static String[][][] L1D = new String[2][1][4];
+    static String[][][] L2 = new String[4][2][4];
 
     static int L1s = 0;
     static int L1E = 0;
@@ -23,75 +23,75 @@ public class Main {
         System.out.println(args[1]);
     }
 
-    public static void data_load(String address, String size, String L1I[][], String L2[][]){
+    public static void data_load(String address, String size, String L1I[][][], String L2[][][]){
         // first check for L1
-        int L1S = calculate_set_index(L1s, L1b, address);
+        int L1setIndex = calculate_set_index(L1s, L1b, address);
         String L1tag = calculate_tag(L1s, L1b, address);
         int lineIndex;
         // if it is miss for L1
-        if(!isHit(L1S, L1E, L1I, L1tag)){
+        if(!isHit(L1setIndex, L1E, L1I, L1tag)){
             missCount++;
-            if(isContainEmptyLine(L1S, L1E, L1I)){
-                lineIndex = findEmptyLineIndex(L1S, L1E, L1I);
+            if(isContainEmptyLine(L1setIndex, L1E, L1I)){
+                lineIndex = findEmptyLineIndex(L1setIndex, L1E, L1I);
             }
             else{
                 evictionCount++;
-                lineIndex = findEvictionLine(L1S, L1E, L1I);
+                lineIndex = findEvictionLine(L1setIndex, L1E, L1I);
             }
-            L1I[L1S*L1E + lineIndex][0] = L1tag;
-            L1I[L1S*L1E + lineIndex][1] = findTime(L1S, L1E, L1I);
-            L1I[L1S*L1E + lineIndex][2] = "1";
+            L1I[L1setIndex][lineIndex][0] = L1tag;
+            L1I[L1setIndex][lineIndex][1] = findTime(L1setIndex, L1E, L1I);
+            L1I[L1setIndex][lineIndex][2] = "1";
             // TODO: add data part
         }
         // check for L2
-        int L2S = calculate_set_index(L2s, L2b, address);
+        int L2setIndex = calculate_set_index(L2s, L2b, address);
         String L2tag = calculate_tag(L2s, L2b, address);
         // if it is miss for L2
-        if(!isHit(L2S, L2E, L2, L2tag)){
+        if(!isHit(L2setIndex, L2E, L2, L2tag)){
             missCount++;
-            if(isContainEmptyLine(L2S, L2E, L2)){
-                lineIndex = findEmptyLineIndex(L2S, L2E, L2);
+            if(isContainEmptyLine(L2setIndex, L2E, L2)){
+                lineIndex = findEmptyLineIndex(L2setIndex, L2E, L2);
             }
             else {
                 evictionCount++;
-                lineIndex = findEvictionLine(L2S, L2E, L2);
+                lineIndex = findEvictionLine(L2setIndex, L2E, L2);
             }
-            L2[L2S*L2E + lineIndex][0] = L2tag;
-            L2[L2S*L2E + lineIndex][1] = findTime(L2S, L2E, L2);
-            L1I[L1S*L1E + lineIndex][2] = "1";
+            L2[L2setIndex][lineIndex][0] = L2tag;
+            L2[L2setIndex][lineIndex][1] = findTime(L2setIndex, L2E, L2);
+            L1I[L1setIndex][lineIndex][2] = "1";
             // TODO: add data part
         }
     }
 
 
     // Method to check if the set contains empty line
-    public static boolean isContainEmptyLine(int S, int E, String cache[][]){
+    public static boolean isContainEmptyLine(int S, int E, String cache[][][]){
         boolean isContain = false;
         for(int i = 0; i < E; i++){
-            if(cache[S*E + i][0].equalsIgnoreCase(""))
+            if(cache[S][i][0].equalsIgnoreCase(""))
                 isContain = true;
         }
         return isContain;
     }
 
     // Method to find empty line inside the set
-    public static int findEmptyLineIndex(int S, int E, String cache[][]){
+    public static int findEmptyLineIndex(int S, int E, String cache[][][]){
         int index = 0;
         for(int i = 0; i < E; i++){
-            if(cache[S*E + i][0].equalsIgnoreCase(""))
+            if(cache[S][i][0].equalsIgnoreCase(""))
                 index = i;
         }
         return index;
     }
 
     // Method to find line for eviction in that set
-    public static int findEvictionLine(int S, int E, String cache[][]){
+    public static int findEvictionLine(int S, int E, String cache[][][]){
         int index = 0;
-        int min = Integer.parseInt(cache[S*E][1]);
+        int min = Integer.parseInt(cache[S][0][1]);
         int new_min;
         for(int i = 1; i < E; i++){
-            new_min = Integer.parseInt(cache[S*E + i][1]);
-            if( new_min< min){
+            new_min = Integer.parseInt(cache[S][i][1]);
+            if( new_min < min){
                 min = new_min;
                 index = i;
             }
@@ -99,11 +99,11 @@ public class Main {
         return index;
     }
 
-    public static String findTime(int S, int E, String cache[][]){
+    public static String findTime(int S, int E, String cache[][][]){
         int time = 0;
         int newTime;
         for(int i = 0; i < E; i++){
-            newTime = (cache[S*E + i][1].equalsIgnoreCase("")) ? 0: Integer.parseInt(cache[S*E + i][1]);
+            newTime = (cache[S][i][1].equalsIgnoreCase("")) ? 0: Integer.parseInt(cache[S][i][1]);
             if(newTime > time)
                 time = newTime;
         }
@@ -111,10 +111,10 @@ public class Main {
         return "" + time;
     }
 
-    public static boolean isHit(int S, int E, String cache[][] ,String tag){
+    public static boolean isHit(int S, int E, String cache[][][] ,String tag){
         boolean isHit = false;
         for(int i = 0; i < E; i++){
-            if(cache[S*E + i][0].equalsIgnoreCase(tag) && cache[S*E + i][2].equalsIgnoreCase("1")){
+            if(cache[S][i][0].equalsIgnoreCase(tag) && cache[S][i][2].equalsIgnoreCase("1")){
                 hitCount++;
                 isHit = true;
                 break;
