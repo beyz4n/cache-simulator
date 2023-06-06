@@ -17,14 +17,13 @@ public class Main {
     static int L2E = 0;
     static int L2b = 0;
 
-
     public static void main(String[] args) {
 
         System.out.println("Hello world!");
         System.out.println(args[1]);
     }
 
-    public static void data_load(String address, String size){
+    public static void data_load(String address, String size, String L1I[][], String L2[][]){
         // first check for L1
         int L1S = calculate_set_index(L1s, L1b, address);
         String L1tag = calculate_tag(L1s, L1b, address);
