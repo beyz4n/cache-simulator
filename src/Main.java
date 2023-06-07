@@ -1,4 +1,4 @@
-import java.io.File;
+import java.io.*;
 import java.lang.*;
 import java.util.*;
 
@@ -10,9 +10,9 @@ public class Main {
 
     final static int col = 4;
     // şimdilik test amaçlı koydum burayı, sonradan kaldırırız
-    static String[][] L1I ; // 0 tag, 1 time, 2 valid, 3 data
-    static String[][] L1D ;
-    static String[][] L2 ;
+    static String[][][] L1I; // 0 tag, 1 time, 2 valid, 3 data
+    static String[][][] L1D;
+    static String[][][] L2 ;
 
     static int L1s = 0;
     static int L1E = 0;
@@ -21,7 +21,7 @@ public class Main {
     static int L2E = 0;
     static int L2b = 0;
 
-    static String ram[];
+    static ArrayList ram = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
 
@@ -34,100 +34,168 @@ public class Main {
 
         String inputTrace = args[13];
 
-        //File traceFile = new File(inputTrace);
-        File ramFile = new File("RAM.dat"); // file input stream ile yap
-
-        //if (!traceFile.exists())
-        //    throw new Exception("trace file does not exist: " + traceFile.getName());
-        if (!ramFile.exists())
-            throw new Exception("ram file does not exist: " + ramFile.getName());
-
-        L1I = new String[L1s*L1E][col];
-        L1D = new String[L1s*L1E][col];
-        L2 = new String[L2s*L2E][col];
-
-        //Scanner traceScanner = new Scanner(traceFile);
-        Scanner ramScanner = new Scanner(ramFile);
-
-        for(int i = 0 ; ramScanner.hasNext() ; i++){
-                ram[i] = ""+ramScanner.next().charAt(7);
-
-         }
+        FileInputStream ramInput = null;
+        try {
+            ramInput = new FileInputStream("RAM.dat");
+        } catch (Exception e) {
+            System.out.println("RAM.dat file could not be found");
+            System.exit(1);
+        }
 
 
+        DataInputStream ramFile = new DataInputStream(ramInput);
+
+
+        File traceFile = new File("traces/" + inputTrace);
+        //File ramFile = new File("RAM.dat"); // file input stream ile yap
+
+        if (!traceFile.exists())
+            throw new Exception("trace file does not exist: " + traceFile.getName());
+        //if (!ramFile.exists())
+        //    throw new Exception("ram file does not exist: " + ramFile.getName());
+
+        L1I = fillCacheWith0( new String[L1s][L1E][col], L1s, L1E );
+        L1D = fillCacheWith0(new String[L1s][L1E][col],L1s ,L1E );
+        L2 = fillCacheWith0( new String[L2s][L2E][col], L2s, L2E );
+
+
+
+        Scanner traceScanner = new Scanner(traceFile);
+        //Scanner ramScanner = new Scanner(ramFile);
+        String tempStr = "";
+        for (int i = 0; ramFile.available() > 0; i++) {
+            for (int j = 0; j < 8; j++) {
+
+                tempStr += "" + byteToHex(ramFile.read() + "");
+            }
+            ram.add(tempStr);
+            tempStr = "";
+            //System.out.println(i + ". line is : " + ram.get(i));
+        }
+
+        ramFile.close();
+        String tempStr2 = "";
+        String temparray[] ;
+        while(traceScanner.hasNext()){
+            tempStr2 = traceScanner.nextLine();
+            temparray = tempStr2.split(" ");
+            if(tempStr2.charAt(0) == 'M'){
+                //modifyData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3] );
+            }
+            else if(tempStr2.charAt(0) == 'L'){
+                //data_load( temparray[1].substring(0,temparray[1].length()-1), temparray[2] );
+            }
+            else if(tempStr2.charAt(0) == 'S'){
+                //storeData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3]  );
+            }
+            else if(tempStr2.charAt(0) == 'I'){
+                //loadInstruction( temparray[1].substring(0,temparray[1].length()-1), temparray[2] );
+            }
+            else{
+                throw new Exception("unknown input from: " + traceFile.getName());
+            }
+
+        }
+        //System.out.println( traceScanner.nextLine() );
 
 
     }
 
-    public static void data_load(String address, String size, String L1I[][], String L2[][]){
+    public static String[][][] fillCacheWith0 (String[][][] temp ,int ls, int le){
+        for(int i = 0 ; i< ls; i++){
+            for(int j = 0 ; j < le ; j++){
+                for(int k = 0 ; k<4 ; k++){
+                    temp[i][j][k] = "";
+                }
+            }
+
+        }
+        return temp;
+    }
+
+    public static String byteToHex( String str ){
+        int temp = Integer.parseInt(str);
+        String tempStr = "";
+        String tempStr2 = "";
+       for(int i = 0 ; i<8 ; i++){
+           tempStr = "" + (temp%2) + tempStr;
+           temp = temp/2;
+       }
+       tempStr = binary2Hex(tempStr);
+       tempStr2 = "" + tempStr.charAt(1) + tempStr.charAt(0);
+
+
+        return tempStr2;
+    }
+    public static void data_load(String address, String size, String L1I[][][], String L2[][][]){
         // first check for L1
-        int L1S = calculate_set_index(L1s, L1b, address);
+        int L1setIndex = calculate_set_index(L1s, L1b, address);
         String L1tag = calculate_tag(L1s, L1b, address);
         int lineIndex;
         // if it is miss for L1
-        if(!isHit(L1S, L1E, L1I, L1tag)){
+        if(!isHit(L1setIndex, L1E, L1I, L1tag)){
             missCount++;
-            if(isContainEmptyLine(L1S, L1E, L1I)){
-                lineIndex = findEmptyLineIndex(L1S, L1E, L1I);
+            if(isContainEmptyLine(L1setIndex, L1E, L1I)){
+                lineIndex = findEmptyLineIndex(L1setIndex, L1E, L1I);
             }
             else{
                 evictionCount++;
-                lineIndex = findEvictionLine(L1S, L1E, L1I);
+                lineIndex = findEvictionLine(L1setIndex, L1E, L1I);
             }
-            L1I[L1S*L1E + lineIndex][0] = L1tag;
-            L1I[L1S*L1E + lineIndex][1] = findTime(L1S, L1E, L1I);
-            L1I[L1S*L1E + lineIndex][2] = "1";
+            L1I[L1setIndex][lineIndex][0] = L1tag;
+            L1I[L1setIndex][lineIndex][1] = findTime(L1setIndex, L1E, L1I);
+            L1I[L1setIndex][lineIndex][2] = "1";
             // TODO: add data part
         }
         // check for L2
-        int L2S = calculate_set_index(L2s, L2b, address);
+        int L2setIndex = calculate_set_index(L2s, L2b, address);
         String L2tag = calculate_tag(L2s, L2b, address);
         // if it is miss for L2
-        if(!isHit(L2S, L2E, L2, L2tag)){
+        if(!isHit(L2setIndex, L2E, L2, L2tag)){
             missCount++;
-            if(isContainEmptyLine(L2S, L2E, L2)){
-                lineIndex = findEmptyLineIndex(L2S, L2E, L2);
+            if(isContainEmptyLine(L2setIndex, L2E, L2)){
+                lineIndex = findEmptyLineIndex(L2setIndex, L2E, L2);
             }
             else {
                 evictionCount++;
-                lineIndex = findEvictionLine(L2S, L2E, L2);
+                lineIndex = findEvictionLine(L2setIndex, L2E, L2);
             }
-            L2[L2S*L2E + lineIndex][0] = L2tag;
-            L2[L2S*L2E + lineIndex][1] = findTime(L2S, L2E, L2);
-            L1I[L1S*L1E + lineIndex][2] = "1";
+            L2[L2setIndex][lineIndex][0] = L2tag;
+            L2[L2setIndex][lineIndex][1] = findTime(L2setIndex, L2E, L2);
+            L1I[L1setIndex][lineIndex][2] = "1";
             // TODO: add data part
         }
     }
 
 
     // Method to check if the set contains empty line
-    public static boolean isContainEmptyLine(int S, int E, String cache[][]){
+    public static boolean isContainEmptyLine(int S, int E, String cache[][][]){
         boolean isContain = false;
         for(int i = 0; i < E; i++){
-            if(cache[S*E + i][0].equalsIgnoreCase(""))
+            if(cache[S][i][0].equalsIgnoreCase(""))
                 isContain = true;
         }
         return isContain;
     }
 
     // Method to find empty line inside the set
-    public static int findEmptyLineIndex(int S, int E, String cache[][]){
+    public static int findEmptyLineIndex(int S, int E, String cache[][][]){
         int index = 0;
         for(int i = 0; i < E; i++){
-            if(cache[S*E + i][0].equalsIgnoreCase(""))
+            if(cache[S][i][0].equalsIgnoreCase(""))
                 index = i;
         }
         return index;
     }
 
     // Method to find line for eviction in that set
-    public static int findEvictionLine(int S, int E, String cache[][]){
+    public static int findEvictionLine(int S, int E, String cache[][][]){
         int index = 0;
-        int min = Integer.parseInt(cache[S*E][1]);
+        int min = Integer.parseInt(cache[S][0][1]);
         int new_min;
         for(int i = 1; i < E; i++){
-            new_min = Integer.parseInt(cache[S*E + i][1]);
-            if( new_min< min){
+            new_min = Integer.parseInt(cache[S][i][1]);
+            if( new_min < min){
                 min = new_min;
                 index = i;
             }
@@ -135,11 +203,11 @@ public class Main {
         return index;
     }
 
-    public static String findTime(int S, int E, String cache[][]){
+    public static String findTime(int S, int E, String cache[][][]){
         int time = 0;
         int newTime;
         for(int i = 0; i < E; i++){
-            newTime = (cache[S*E + i][1].equalsIgnoreCase("")) ? 0: Integer.parseInt(cache[S*E + i][1]);
+            newTime = (cache[S][i][1].equalsIgnoreCase("")) ? 0: Integer.parseInt(cache[S][i][1]);
             if(newTime > time)
                 time = newTime;
         }
@@ -147,10 +215,10 @@ public class Main {
         return "" + time;
     }
 
-    public static boolean isHit(int S, int E, String cache[][] ,String tag){
+    public static boolean isHit(int S, int E, String cache[][][] ,String tag){
         boolean isHit = false;
         for(int i = 0; i < E; i++){
-            if(cache[S*E + i][0].equalsIgnoreCase(tag) && cache[S*E + i][2].equalsIgnoreCase("1")){
+            if(cache[S][i][0].equalsIgnoreCase(tag) && cache[S][i][2].equalsIgnoreCase("1")){
                 hitCount++;
                 isHit = true;
                 break;
