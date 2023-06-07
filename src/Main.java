@@ -21,7 +21,7 @@ public class Main {
     static int L2E = 0;
     static int L2b = 0;
 
-    static ArrayList ram = new ArrayList<>();
+    static ArrayList<String> ram = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
 
@@ -127,6 +127,72 @@ public class Main {
 
         return tempStr2;
     }
+
+    public static void modifyData(String address, String size, String data){
+        data_load(address, size);
+        storeData(address,size,data);
+    }
+    public static void storeData(String address, String size, String data){
+        int L1setIndex = calculate_set_index(L1s, L1b, address);
+        int L2setIndex = calculate_set_index(L2s, L2b, address);
+        String L1tag = calculate_tag(L1s, L1b, address);
+        String L2tag = calculate_tag(L2s, L2b, address);
+        // If there is a hit in L1I
+        if(isHit(L1setIndex,L1E, L1I, L1tag)){
+            hitCount++;
+            String addressBinary = hex2Binary(address);
+            String block = addressBinary.substring(addressBinary.length() - L1b);
+            int blocksize = binary2Decimal(block);
+            modifyRam(data, blocksize);
+            int L1eIndex = getLine(L1s,L1E, L1I, L1tag);
+            modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex);
+        }
+        else if(isHit(L1setIndex,L1E, L1D, L1tag)){
+            hitCount++;
+            String addressBinary = hex2Binary(address);
+            String block = addressBinary.substring(addressBinary.length() - L1b);
+            int blocksize = binary2Decimal(block);
+            modifyRam(data, blocksize);
+            int L1eIndex = getLine(L1s,L1E, L1D, L1tag);
+            modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex);
+        }
+        else if(isHit(L1setIndex,L2E, L2, L2tag)){
+            hitCount++;
+            String addressBinary = hex2Binary(address);
+            String block = addressBinary.substring(addressBinary.length() - L2b);
+            int blocksize = binary2Decimal(block);
+            modifyRam(data, blocksize);
+            int L2eIndex = getLine(L2s,L2E, L2, L2tag);
+            modifyCache(L2, blocksize, data, L2setIndex, L2eIndex);
+        }
+        else
+            System.out.println("error");
+
+    }
+
+    public static void modifyRam(String data, int blockSize){
+        //index hex e çevir
+        String ramData = ram.get(1);
+        String temp = ramData.substring(blockSize);
+        temp += data;
+        temp += ramData.substring(data.length() + ramData.substring(blockSize).length() );
+        String modifiedData = temp;
+        ram.set(1, modifiedData);
+    }
+    public static void modifyCache(String[][][] cache, int blockSize, String data, int setIndex, int eIndex){
+        //index hex e çevir
+        String cacheData = cache[setIndex][eIndex][3];
+        String temp = cacheData.substring(blockSize);
+        temp += data;
+        temp += cacheData.substring(data.length() + cacheData.substring(blockSize).length() );
+        String modifiedData = temp;
+        cache[setIndex][eIndex][3] = modifiedData;
+    }
+
+    public static void loadInstruction(String address, String size){
+
+    }
+
     public static void data_load(String address, String size, String L1I[][][], String L2[][][]){
         // first check for L1
         int L1setIndex = calculate_set_index(L1s, L1b, address);
@@ -225,6 +291,16 @@ public class Main {
             }
         }
         return isHit;
+    }
+
+    public static int getLine(int S, int E, String cache[][][] ,String tag){
+        for(int i = 0; i < E; i++){
+            if(cache[S][i][0].equalsIgnoreCase(tag) && cache[S][i][2].equalsIgnoreCase("1")){
+                hitCount++;
+                return i;
+            }
+        }
+        return 0;
     }
 
     public static int calculate_set_index(int s, int b, String address){
