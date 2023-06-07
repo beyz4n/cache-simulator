@@ -1,14 +1,18 @@
+import java.io.File;
 import java.lang.*;
+import java.util.*;
+
 public class Main {
 
     static int hitCount = 0;
     static int missCount = 0;
     static int evictionCount = 0;
 
+    final static int col = 4;
     // şimdilik test amaçlı koydum burayı, sonradan kaldırırız
-    static String[][] L1I = new String[2][4];
-    static String[][] L1D = new String[2][4];
-    static String[][] L2 = new String[4][4];
+    static String[][] L1I ; // 0 tag, 1 time, 2 valid, 3 data
+    static String[][] L1D ;
+    static String[][] L2 ;
 
     static int L1s = 0;
     static int L1E = 0;
@@ -17,10 +21,42 @@ public class Main {
     static int L2E = 0;
     static int L2b = 0;
 
-    public static void main(String[] args) {
+    static String ram[];
 
-        System.out.println("Hello world!");
-        System.out.println(args[1]);
+    public static void main(String[] args) throws Exception {
+
+        L1s = Integer.parseInt(args[1]);
+        L1E = Integer.parseInt(args[3]);
+        L1b = Integer.parseInt(args[5]);
+        L2s = Integer.parseInt(args[7]);
+        L2E = Integer.parseInt(args[9]);
+        L2b = Integer.parseInt(args[11]);
+
+        String inputTrace = args[13];
+
+        //File traceFile = new File(inputTrace);
+        File ramFile = new File("RAM.dat"); // file input stream ile yap
+
+        //if (!traceFile.exists())
+        //    throw new Exception("trace file does not exist: " + traceFile.getName());
+        if (!ramFile.exists())
+            throw new Exception("ram file does not exist: " + ramFile.getName());
+
+        L1I = new String[L1s*L1E][col];
+        L1D = new String[L1s*L1E][col];
+        L2 = new String[L2s*L2E][col];
+
+        //Scanner traceScanner = new Scanner(traceFile);
+        Scanner ramScanner = new Scanner(ramFile);
+
+        for(int i = 0 ; ramScanner.hasNext() ; i++){
+                ram[i] = ""+ramScanner.next().charAt(7);
+
+         }
+
+
+
+
     }
 
     public static void data_load(String address, String size, String L1I[][], String L2[][]){
