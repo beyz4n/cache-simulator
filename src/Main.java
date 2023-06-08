@@ -129,41 +129,44 @@ public class Main {
     }
 
     public static void modifyData(String address, String size, String data){
-        data_load(address, size);
-        storeData(address,size,data);
+        data_load(address, size);   //firstly call function to load data
+        storeData(address,size,data); //then call function to store data
     }
     public static void storeData(String address, String size, String data){
-        int L1setIndex = calculate_set_index(L1s, L1b, address);
-        int L2setIndex = calculate_set_index(L2s, L2b, address);
-        String L1tag = calculate_tag(L1s, L1b, address);
-        String L2tag = calculate_tag(L2s, L2b, address);
+        int L1setIndex = calculate_set_index(L1s, L1b, address); //calculates set value of the address for L1
+        int L2setIndex = calculate_set_index(L2s, L2b, address); //calculates set value of the address for L2
+        String L1tag = calculate_tag(L1s, L1b, address); //calculates tag value of the address for L1
+        String L2tag = calculate_tag(L2s, L2b, address); //calculates tag value of the address for L2
+
         // If there is a hit in L1I
         if(isHit(L1setIndex,L1E, L1I, L1tag)){
             hitCount++;
-            String addressBinary = hex2Binary(address);
-            String block = addressBinary.substring(addressBinary.length() - L1b);
-            int blocksize = binary2Decimal(block);
-            modifyRam(data, blocksize);
-            int L1eIndex = getLine(L1s,L1E, L1I, L1tag);
-            modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex);
+            String addressBinary = hex2Binary(address); //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
+            modifyRam(data, blocksize); //write data to memory
+            int L1eIndex = getLine(L1s,L1E, L1I, L1tag); //calculate e index
+            modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex); //write data to cache
         }
+        //If there is a hit in L1D
         else if(isHit(L1setIndex,L1E, L1D, L1tag)){
             hitCount++;
-            String addressBinary = hex2Binary(address);
-            String block = addressBinary.substring(addressBinary.length() - L1b);
-            int blocksize = binary2Decimal(block);
-            modifyRam(data, blocksize);
-            int L1eIndex = getLine(L1s,L1E, L1D, L1tag);
-            modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex);
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block);  // change the value to decimal since we want to find the starting index of the data in the block
+            modifyRam(data, blocksize); //write data to memory
+            int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
+            modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
         }
+        //ıf there is a hit in L2
         else if(isHit(L1setIndex,L2E, L2, L2tag)){
             hitCount++;
-            String addressBinary = hex2Binary(address);
-            String block = addressBinary.substring(addressBinary.length() - L2b);
-            int blocksize = binary2Decimal(block);
-            modifyRam(data, blocksize);
-            int L2eIndex = getLine(L2s,L2E, L2, L2tag);
-            modifyCache(L2, blocksize, data, L2setIndex, L2eIndex);
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
+            modifyRam(data, blocksize); //write data to memory
+            int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
+            modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
         }
         else
             System.out.println("error");
@@ -171,22 +174,22 @@ public class Main {
     }
 
     public static void modifyRam(String data, int blockSize){
-        //index hex e çevir
-        String ramData = ram.get(1);
-        String temp = ramData.substring(blockSize);
-        temp += data;
-        temp += ramData.substring(data.length() + ramData.substring(blockSize).length() );
+
+        String ramData = ram.get(1);  //get the data from memory
+        String temp = ramData.substring(0,blockSize); //write the first unchanging part of the data to temp
+        temp += data; //update temp with data
+        temp += ramData.substring(data.length() + ramData.substring(blockSize).length() ); //write the last unchanging part of the data to temp
         String modifiedData = temp;
-        ram.set(1, modifiedData);
+        ram.set(1, modifiedData); //update Ram
     }
     public static void modifyCache(String[][][] cache, int blockSize, String data, int setIndex, int eIndex){
-        //index hex e çevir
-        String cacheData = cache[setIndex][eIndex][3];
-        String temp = cacheData.substring(blockSize);
-        temp += data;
-        temp += cacheData.substring(data.length() + cacheData.substring(blockSize).length() );
+
+        String cacheData = cache[setIndex][eIndex][3]; //get cache data
+        String temp = cacheData.substring(0,blockSize);  //write the first unchanging part of the data to temp
+        temp += data; //update temp with data
+        temp += cacheData.substring(data.length() + cacheData.substring(blockSize).length() ); //write the last unchanging part of the data to temp
         String modifiedData = temp;
-        cache[setIndex][eIndex][3] = modifiedData;
+        cache[setIndex][eIndex][3] = modifiedData; //update Cache
     }
 
     public static void loadInstruction(String address, String size){
@@ -211,7 +214,12 @@ public class Main {
             L1I[L1setIndex][lineIndex][0] = L1tag;
             L1I[L1setIndex][lineIndex][1] = findTime(L1setIndex, L1E, L1I);
             L1I[L1setIndex][lineIndex][2] = "1";
-            // TODO: add data part
+
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
+            L1I[L1setIndex][lineIndex][3] = data.substring(blocksize);
+
         }
         // check for L2
         int L2setIndex = calculate_set_index(L2s, L2b, address);
