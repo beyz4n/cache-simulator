@@ -70,10 +70,9 @@ public class Main {
             throw new Exception("trace file does not exist: " + traceFile.getName());
 
 
-        L1I = fillCacheWith0( new String[L1s][L1E][col], L1s, L1E );
-        L1D = fillCacheWith0(new String[L1s][L1E][col],L1s ,L1E );
-        L2 = fillCacheWith0( new String[L2s][L2E][col], L2s, L2E );
-
+        L1I = fillCacheWith0( new String[ (int)( Math.pow(2, L1s) ) ][L1E][col], (int)( Math.pow(2, L1s) ), L1E );
+        L1D = fillCacheWith0(new String[ (int)( Math.pow(2, L1s) ) ][L1E][col],(int)( Math.pow(2, L1s) ) ,L1E );
+        L2 = fillCacheWith0( new String[ (int)( Math.pow(2, L2s) ) ][L2E][col], (int)( Math.pow(2, L2s) ), L2E );
 
 
         Scanner traceScanner = new Scanner(traceFile);
@@ -97,42 +96,47 @@ public class Main {
             System.out.println( tempStr2 ); // printing the input trace
             temparray = tempStr2.split(" ");
             if(tempStr2.charAt(0) == 'M'){
-                //modifyData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3] );
+                modifyData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3] );
             }
             else if(tempStr2.charAt(0) == 'L'){
-                //data_load( temparray[1].substring(0,temparray[1].length()-1), temparray[2] );
+                data_load( temparray[1].substring(0,temparray[1].length()-1), temparray[2] );
             }
             else if(tempStr2.charAt(0) == 'S'){
-                //storeData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3]  );
+                storeData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3]  );
             }
             else if(tempStr2.charAt(0) == 'I'){
-                //loadInstruction( temparray[1].substring(0,temparray[1].length()-1), temparray[2] );
+                loadInstruction( temparray[1].substring(0,temparray[1].length()-1), temparray[2] );
             }
             else{
                 throw new Exception("unknown input from: " + traceFile.getName());
             }
-        // rami bi dosyaya printle
+
         }
 
-        l1iOutput.println("L1I cache: ");
+        l1iOutput.println("L1I cache: " + "\ntag time valid bit data");
         printCache(L1I, L1s, L1E, l1iOutput);
 
-        l1iOutput.println("L1D cache: ");
+        l1dOutput.println("L1D cache: " + "\ntag time valid bit data");
         printCache(L1D, L1s, L1E, l1dOutput);
 
-        l1iOutput.println("L2 cache: ");
+        l2Output.println("L2 cache: " + "\ntag time valid bit data");
         printCache(L2, L2s, L2E, l2Output);
 
         int sizeOfRam = ram.size();
         for(int i = 0 ; i<sizeOfRam ; i++){
             ramOutput.println(ram.get(i));
         }
+        l1iOutput.close();
+        l1dOutput.close();
+        l2Output.close();
+        ramOutput.close();
+
 
     }
     public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
-        for(int i = 0; i< ls; i++){
-            for(int j = 0; j< le; j++){
-                writer.println(cache[i][j][3]);
+        for(int i = 0; i< Math.pow(2, ls); i++){
+            for(int j = 0; (j < le); j++){
+                writer.println(cache[i][j][0] + " " + cache[i][j][1] + " " + cache[i][j][2] + " " + cache[i][j][3]);
             }
         }
     }
@@ -143,7 +147,7 @@ public class Main {
             binaryStr += hex2Binary("" + str.charAt(i) );
         }
         int index = binary2Decimal(binaryStr);
-        return index;
+        return index/8;
     }
     public static String[][][] fillCacheWith0 (String[][][] temp ,int ls, int le){
         for(int i = 0 ; i< ls; i++){
@@ -229,7 +233,7 @@ public class Main {
         String ramData = ram.get(addressToIndex(address));  //get the data from memory
         String temp = ramData.substring(0,blockSize); //write the first unchanging part of the data to temp
         temp += data; //update temp with data
-        temp += ramData.substring(data.length() + ramData.substring(blockSize).length() ); //write the last unchanging part of the data to temp
+        temp += ramData.substring(data.length() + ramData.substring(0, blockSize).length() ); //write the last unchanging part of the data to temp
         String modifiedData = temp;
         ram.set(addressToIndex(address), modifiedData); //update Ram
     }
@@ -238,7 +242,7 @@ public class Main {
         String cacheData = cache[setIndex][eIndex][3]; //get cache data
         String temp = cacheData.substring(0,blockSize);  //write the first unchanging part of the data to temp
         temp += data; //update temp with data
-        temp += cacheData.substring(data.length() + cacheData.substring(blockSize).length() ); //write the last unchanging part of the data to temp
+        temp += cacheData.substring(data.length() + cacheData.substring(0, blockSize).length() ); //write the last unchanging part of the data to temp
         String modifiedData = temp;
         cache[setIndex][eIndex][3] = modifiedData; //update Cache
     }
@@ -469,7 +473,7 @@ public class Main {
     public static String hex2Binary(String hex){
         String binary = "";
 
-        for(int i = 0; i < hex.length(); ){
+        for(int i = 0; i < hex.length(); i++ ){
             switch (hex.charAt(i)){
                 case '0': binary += "0000"; break;
                 case '1': binary += "0001"; break;
