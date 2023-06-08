@@ -176,7 +176,6 @@ public class Main {
 
         // If there is a hit in L1I
         if(isHit(L1setIndex,L1E, L1I, L1tag)){
-            hitCount++;
             String addressBinary = hex2Binary(address); //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
             int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
@@ -185,8 +184,7 @@ public class Main {
             modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex); //write data to cache
         }
         //If there is a hit in L1D
-        else if(isHit(L1setIndex,L1E, L1D, L1tag)){
-            hitCount++;
+        if(isHit(L1setIndex,L1E, L1D, L1tag)){
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
             int blocksize = binary2Decimal(block);  // change the value to decimal since we want to find the starting index of the data in the block
@@ -195,8 +193,7 @@ public class Main {
             modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
         }
         //ıf there is a hit in L2
-        else if(isHit(L1setIndex,L2E, L2, L2tag)){
-            hitCount++;
+        if(isHit(L1setIndex,L2E, L2, L2tag)){
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
             int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
@@ -204,8 +201,10 @@ public class Main {
             int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
             modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
         }
-        else
-            System.out.println("error");
+        if(!isHit(L1setIndex,L1E, L1I, L1tag) && !isHit(L1setIndex,L1E, L1D, L1tag) && !isHit(L1setIndex,L2E, L2, L2tag)){
+            missCount++;
+
+        }
 
     }
 
