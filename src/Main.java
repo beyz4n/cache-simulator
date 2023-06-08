@@ -9,7 +9,7 @@ public class Main {
     static int evictionCount = 0;
 
     final static int col = 4;
-    // şimdilik test amaçlı koydum burayı, sonradan kaldırırız
+
     static String[][][] L1I; // 0 tag, 1 time, 2 valid, 3 data
     static String[][][] L1D;
     static String[][][] L2 ;
@@ -45,14 +45,22 @@ public class Main {
 
         DataInputStream ramFile = new DataInputStream(ramInput);
 
-
         File traceFile = new File("traces/" + inputTrace);
-        //File ramFile = new File("RAM.dat"); // file input stream ile yap
+        File l1iFile = new File("L1I_output.txt");
+        File l1dFile = new File("L1D_output.txt");
+        File l2File = new File("L2_output.txt");
+        File ramOutputFile = new File("RAM_output.txt");
+
+        PrintWriter l1iOutput = new PrintWriter(l1iFile);
+        PrintWriter l1dOutput = new PrintWriter(l1dFile);
+        PrintWriter l2Output = new PrintWriter(l2File);
+        PrintWriter ramOutput = new PrintWriter(ramOutputFile);
+
+
 
         if (!traceFile.exists())
             throw new Exception("trace file does not exist: " + traceFile.getName());
-        //if (!ramFile.exists())
-        //    throw new Exception("ram file does not exist: " + ramFile.getName());
+
 
         L1I = fillCacheWith0( new String[L1s][L1E][col], L1s, L1E );
         L1D = fillCacheWith0(new String[L1s][L1E][col],L1s ,L1E );
@@ -78,6 +86,7 @@ public class Main {
         String temparray[] ;
         while(traceScanner.hasNext()){
             tempStr2 = traceScanner.nextLine();
+            System.out.println( tempStr2 ); // printing the input trace
             temparray = tempStr2.split(" ");
             if(tempStr2.charAt(0) == 'M'){
                 //modifyData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3] );
@@ -94,13 +103,40 @@ public class Main {
             else{
                 throw new Exception("unknown input from: " + traceFile.getName());
             }
-
+        // rami bi dosyaya printle
         }
-        //System.out.println( traceScanner.nextLine() );
 
+        l1iOutput.println("L1I cache: ");
+        printCache(L1I, L1s, L1E, l1iOutput);
+
+        l1iOutput.println("L1D cache: ");
+        printCache(L1D, L1s, L1E, l1dOutput);
+
+        l1iOutput.println("L2 cache: ");
+        printCache(L2, L2s, L2E, l2Output);
+
+        int sizeOfRam = ram.size();
+        for(int i = 0 ; i<sizeOfRam ; i++){
+            ramOutput.println(ram.get(i));
+        }
 
     }
-
+    public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
+        for(int i = 0; i< ls; i++){
+            for(int j = 0; j< le; j++){
+                writer.println(cache[i][j][3]);
+            }
+        }
+    }
+    public static int addressToIndex(String str){
+        String binaryStr = ""; hex2Binary(str);
+        int strLength = str.length();
+        for(int i = 0; i<strLength ; i++){
+            binaryStr += hex2Binary("" + str.charAt(i) );
+        }
+        int index = binary2Decimal(binaryStr);
+        return index;
+    }
     public static String[][][] fillCacheWith0 (String[][][] temp ,int ls, int le){
         for(int i = 0 ; i< ls; i++){
             for(int j = 0 ; j < le ; j++){
@@ -143,7 +179,7 @@ public class Main {
             String addressBinary = hex2Binary(address);
             String block = addressBinary.substring(addressBinary.length() - L1b);
             int blocksize = binary2Decimal(block);
-            modifyRam(data, blocksize);
+            modifyRam(data, blocksize, address);
             int L1eIndex = getLine(L1s,L1E, L1I, L1tag);
             modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex);
         }
@@ -152,7 +188,7 @@ public class Main {
             String addressBinary = hex2Binary(address);
             String block = addressBinary.substring(addressBinary.length() - L1b);
             int blocksize = binary2Decimal(block);
-            modifyRam(data, blocksize);
+            modifyRam(data, blocksize, address);
             int L1eIndex = getLine(L1s,L1E, L1D, L1tag);
             modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex);
         }
@@ -161,7 +197,7 @@ public class Main {
             String addressBinary = hex2Binary(address);
             String block = addressBinary.substring(addressBinary.length() - L2b);
             int blocksize = binary2Decimal(block);
-            modifyRam(data, blocksize);
+            modifyRam(data, blocksize, address);
             int L2eIndex = getLine(L2s,L2E, L2, L2tag);
             modifyCache(L2, blocksize, data, L2setIndex, L2eIndex);
         }
@@ -170,17 +206,15 @@ public class Main {
 
     }
 
-    public static void modifyRam(String data, int blockSize){
-        //index hex e çevir
-        String ramData = ram.get(1);
+    public static void modifyRam(String data, int blockSize, String address){
+        String ramData = ram.get(addressToIndex(address));
         String temp = ramData.substring(blockSize);
         temp += data;
         temp += ramData.substring(data.length() + ramData.substring(blockSize).length() );
         String modifiedData = temp;
-        ram.set(1, modifiedData);
+        ram.set(addressToIndex(address), modifiedData);
     }
     public static void modifyCache(String[][][] cache, int blockSize, String data, int setIndex, int eIndex){
-        //index hex e çevir
         String cacheData = cache[setIndex][eIndex][3];
         String temp = cacheData.substring(blockSize);
         temp += data;
@@ -193,7 +227,7 @@ public class Main {
 
     }
 
-    public static void data_load(String address, String size, String L1I[][][], String L2[][][]){
+    public static void data_load(String address, String size){
         // first check for L1
         int L1setIndex = calculate_set_index(L1s, L1b, address);
         String L1tag = calculate_tag(L1s, L1b, address);
@@ -394,8 +428,8 @@ public class Main {
 
         int decimal = 0;
         int exp = binary.length();
-
-        for(int i = 0; i < binary.length(); i++){
+        int binaryLength = exp;
+        for(int i = 0; i < binaryLength ; i++){
             exp --;
             if(binary.charAt(i) == '1') {
                 decimal += Math.pow(2, exp);
