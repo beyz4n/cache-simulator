@@ -244,7 +244,50 @@ public class Main {
     }
 
     public static void loadInstruction(String address, String size){
+        int L1setIndex = calculate_set_index(L1s, L1b, address);
+        String L1tag = calculate_tag(L1s, L1b, address);
+        int lineIndex;
+        // if it is miss for L1I
+        if(!isHit(L1setIndex, L1E, L1I, L1tag, 2)){
+            missCount_L1I++;
+            if(isContainEmptyLine(L1setIndex, L1E, L1I)){
+                lineIndex = findEmptyLineIndex(L1setIndex, L1E, L1I);
+            }
+            else{
+                evictionCount_L1I++;
+                lineIndex = findEvictionLine(L1setIndex, L1E, L1I);
+            }
+            L1I[L1setIndex][lineIndex][0] = L1tag;
+            L1I[L1setIndex][lineIndex][1] = findTime(L1setIndex, L1E, L1I);
+            L1I[L1setIndex][lineIndex][2] = "1";
 
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
+            L1I[L1setIndex][lineIndex][3] = ram.get(addressToIndex(address)).substring(blocksize);
+
+        }
+        // check for L2
+        int L2setIndex = calculate_set_index(L2s, L2b, address);
+        String L2tag = calculate_tag(L2s, L2b, address);
+        // if it is miss for L2
+        if(!isHit(L2setIndex, L2E, L2, L2tag, 3)) {
+            missCount_L2++;
+            if (isContainEmptyLine(L2setIndex, L2E, L2)) {
+                lineIndex = findEmptyLineIndex(L2setIndex, L2E, L2);
+            } else {
+                evictionCount_L2++;
+                lineIndex = findEvictionLine(L2setIndex, L2E, L2);
+            }
+            L2[L2setIndex][lineIndex][0] = L2tag;
+            L2[L2setIndex][lineIndex][1] = findTime(L2setIndex, L2E, L2);
+            L2[L1setIndex][lineIndex][2] = "1";
+
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
+            L2[L1setIndex][lineIndex][3] = ram.get(addressToIndex(address)).substring(blocksize);
+        }
     }
 
     public static void data_load(String address, String size){
