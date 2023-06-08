@@ -183,6 +183,9 @@ public class Main {
             int L1eIndex = getLine(L1s,L1E, L1I, L1tag); //calculate e index
             modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex); //write data to cache
         }
+        else{
+            missCount++;
+        }
         //If there is a hit in L1D
         if(isHit(L1setIndex,L1E, L1D, L1tag)){
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
@@ -191,6 +194,9 @@ public class Main {
             modifyRam(data, blocksize, address); //write data to memory
             int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
             modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
+        }
+        else{
+            missCount++;
         }
         //ıf there is a hit in L2
         if(isHit(L1setIndex,L2E, L2, L2tag)){
@@ -201,9 +207,11 @@ public class Main {
             int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
             modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
         }
-        if(!isHit(L1setIndex,L1E, L1I, L1tag) && !isHit(L1setIndex,L1E, L1D, L1tag) && !isHit(L1setIndex,L2E, L2, L2tag)){
+        else {
             missCount++;
-
+        }
+        if(!isHit(L1setIndex,L1E, L1I, L1tag) && !isHit(L1setIndex,L1E, L1D, L1tag) && !isHit(L1setIndex,L2E, L2, L2tag)){
+            modifyRam(data,0, address);
         }
 
     }
