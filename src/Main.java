@@ -180,7 +180,8 @@ public class Main {
     }
 
     public static void modifyData(String address, String size, String data){
-        data_load(address, size);   //firstly call function to load data
+        loadInstruction(address,size); //firstly call function to load instruction
+        data_load(address, size);   //then call function to load data
         storeData(address,size,data); //then call function to store data
     }
     public static void storeData(String address, String size, String data){
