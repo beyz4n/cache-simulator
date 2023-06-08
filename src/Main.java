@@ -112,6 +112,9 @@ public class Main {
             }
 
         }
+        System.out.println("L1I-hits:"+ hitCount_L1I +" L1I-misses:"+ missCount_L1I + " L1I-evictions:" + evictionCount_L1I);
+        System.out.println("L1D-hits:"+ hitCount_L1D +" L1D-misses:"+ missCount_L1D + " L1D-evictions:" + evictionCount_L1D);
+        System.out.println("L2-hits:"+ hitCount_L2 +" L2-misses:"+ missCount_L2 + " L2-evictions:" + evictionCount_L2);
 
         l1iOutput.println("L1I cache: " + "\ntag time valid bit data");
         printCache(L1I, L1s, L1E, l1iOutput);
