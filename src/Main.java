@@ -4,9 +4,17 @@ import java.util.*;
 
 public class Main {
 
-    static int hitCount = 0;
-    static int missCount = 0;
-    static int evictionCount = 0;
+    static int hitCount_L1I = 0;
+    static int missCount_L1I = 0;
+    static int evictionCount_L1I = 0;
+
+    static int hitCount_L1D = 0;
+    static int missCount_L1D = 0;
+    static int evictionCount_L1D = 0;
+
+    static int hitCount_L2 = 0;
+    static int missCount_L2 = 0;
+    static int evictionCount_L2 = 0;
 
     final static int col = 4;
 
@@ -175,7 +183,7 @@ public class Main {
         String L2tag = calculate_tag(L2s, L2b, address); //calculates tag value of the address for L2
 
         // If there is a hit in L1I
-        if(isHit(L1setIndex,L1E, L1I, L1tag)){
+        if(isHit(L1setIndex,L1E, L1I, L1tag, 1)){
             String addressBinary = hex2Binary(address); //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
             int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
@@ -184,10 +192,10 @@ public class Main {
             modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex); //write data to cache
         }
         else{
-            missCount++;
+            missCount_L1I++;
         }
         //If there is a hit in L1D
-        if(isHit(L1setIndex,L1E, L1D, L1tag)){
+        if(isHit(L1setIndex,L1E, L1D, L1tag,2)){
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
             int blocksize = binary2Decimal(block);  // change the value to decimal since we want to find the starting index of the data in the block
@@ -196,10 +204,10 @@ public class Main {
             modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
         }
         else{
-            missCount++;
+            missCount_L1D++;
         }
         //ıf there is a hit in L2
-        if(isHit(L1setIndex,L2E, L2, L2tag)){
+        if(isHit(L1setIndex,L2E, L2, L2tag, 3)){
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
             int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
@@ -208,9 +216,9 @@ public class Main {
             modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
         }
         else {
-            missCount++;
+            missCount_L2++;
         }
-        if(!isHit(L1setIndex,L1E, L1I, L1tag) && !isHit(L1setIndex,L1E, L1D, L1tag) && !isHit(L1setIndex,L2E, L2, L2tag)){
+        if(!isHit(L1setIndex,L1E, L1I, L1tag, 1) && !isHit(L1setIndex,L1E, L1D, L1tag, 2) && !isHit(L1setIndex,L2E, L2, L2tag, 3)){
             modifyRam(data,0, address);
         }
 
@@ -244,43 +252,47 @@ public class Main {
         int L1setIndex = calculate_set_index(L1s, L1b, address);
         String L1tag = calculate_tag(L1s, L1b, address);
         int lineIndex;
-        // if it is miss for L1
-        if(!isHit(L1setIndex, L1E, L1I, L1tag)){
-            missCount++;
-            if(isContainEmptyLine(L1setIndex, L1E, L1I)){
-                lineIndex = findEmptyLineIndex(L1setIndex, L1E, L1I);
+        // if it is miss for L1D
+        if(!isHit(L1setIndex, L1E, L1D, L1tag, 2)){
+            missCount_L1D++;
+            if(isContainEmptyLine(L1setIndex, L1E, L1D)){
+                lineIndex = findEmptyLineIndex(L1setIndex, L1E, L1D);
             }
             else{
-                evictionCount++;
-                lineIndex = findEvictionLine(L1setIndex, L1E, L1I);
+                evictionCount_L1D++;
+                lineIndex = findEvictionLine(L1setIndex, L1E, L1D);
             }
-            L1I[L1setIndex][lineIndex][0] = L1tag;
-            L1I[L1setIndex][lineIndex][1] = findTime(L1setIndex, L1E, L1I);
-            L1I[L1setIndex][lineIndex][2] = "1";
+            L1D[L1setIndex][lineIndex][0] = L1tag;
+            L1D[L1setIndex][lineIndex][1] = findTime(L1setIndex, L1E, L1D);
+            L1D[L1setIndex][lineIndex][2] = "1";
 
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
-            String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
+            String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
             int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
-            L1I[L1setIndex][lineIndex][3] = ram.get(addressToIndex(address)).substring(blocksize);
+            L1D[L1setIndex][lineIndex][3] = ram.get(addressToIndex(address)).substring(blocksize);
 
         }
         // check for L2
         int L2setIndex = calculate_set_index(L2s, L2b, address);
         String L2tag = calculate_tag(L2s, L2b, address);
         // if it is miss for L2
-        if(!isHit(L2setIndex, L2E, L2, L2tag)){
-            missCount++;
+        if(!isHit(L2setIndex, L2E, L2, L2tag, 3)){
+            missCount_L2++;
             if(isContainEmptyLine(L2setIndex, L2E, L2)){
                 lineIndex = findEmptyLineIndex(L2setIndex, L2E, L2);
             }
             else {
-                evictionCount++;
+                evictionCount_L2++;
                 lineIndex = findEvictionLine(L2setIndex, L2E, L2);
             }
             L2[L2setIndex][lineIndex][0] = L2tag;
             L2[L2setIndex][lineIndex][1] = findTime(L2setIndex, L2E, L2);
-            L1I[L1setIndex][lineIndex][2] = "1";
-            // TODO: add data part
+            L2[L1setIndex][lineIndex][2] = "1";
+
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
+            L2[L1setIndex][lineIndex][3] = ram.get(addressToIndex(address)).substring(blocksize);
         }
     }
 
@@ -332,11 +344,15 @@ public class Main {
         return "" + time;
     }
 
-    public static boolean isHit(int S, int E, String cache[][][] ,String tag){
+    public static boolean isHit(int S, int E, String cache[][][] ,String tag, int id){
         boolean isHit = false;
         for(int i = 0; i < E; i++){
             if(cache[S][i][0].equalsIgnoreCase(tag) && cache[S][i][2].equalsIgnoreCase("1")){
-                hitCount++;
+                switch (id){
+                    case 1: hitCount_L1I++; break;
+                    case 2: hitCount_L1D++; break;
+                    case 3: hitCount_L2++; break;
+                }
                 isHit = true;
                 break;
             }
@@ -347,7 +363,6 @@ public class Main {
     public static int getLine(int S, int E, String cache[][][] ,String tag){
         for(int i = 0; i < E; i++){
             if(cache[S][i][0].equalsIgnoreCase(tag) && cache[S][i][2].equalsIgnoreCase("1")){
-                hitCount++;
                 return i;
             }
         }
