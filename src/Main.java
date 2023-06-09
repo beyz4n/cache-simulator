@@ -4,44 +4,44 @@ import java.util.*;
 
 public class Main {
 
-    static int hitCount_L1I = 0;
-    static int missCount_L1I = 0;
-    static int evictionCount_L1I = 0;
+    static int hitCount_L1I = 0; // storing l1i hit count
+    static int missCount_L1I = 0; // storing l1i miss count
+    static int evictionCount_L1I = 0; // storing l1i eviction count
 
-    static int hitCount_L1D = 0;
-    static int missCount_L1D = 0;
-    static int evictionCount_L1D = 0;
+    static int hitCount_L1D = 0; // storing l1d hit count
+    static int missCount_L1D = 0; // storing l1d miss count
+    static int evictionCount_L1D = 0; // storing l1d eviction count
 
-    static int hitCount_L2 = 0;
-    static int missCount_L2 = 0;
-    static int evictionCount_L2 = 0;
+    static int hitCount_L2 = 0; // storing l2 hit count
+    static int missCount_L2 = 0; // storing l2 miss count
+    static int evictionCount_L2 = 0; // storing l2 eviction count
 
-    final static int col = 4;
+    final static int col = 4; // this is the size for the tag, time, valid bit and data
 
-    static String[][][] L1I; // 0 tag, 1 time, 2 valid, 3 data
-    static String[][][] L1D;
-    static String[][][] L2 ;
-
+    static String[][][] L1I; // here we store 0 tag, 1 time, 2 valid, 3 data for l1i cache
+    static String[][][] L1D; // here we store 0 tag, 1 time, 2 valid, 3 data for l1d cache
+    static String[][][] L2 ; // here we store 0 tag, 1 time, 2 valid, 3 data for l2 cache
+    // here we have some variables to store the s E and b values for l1 and l2 cache
     static int L1s = 0;
     static int L1E = 0;
     static int L1b = 0;
     static int L2s = 0;
     static int L2E = 0;
     static int L2b = 0;
-
+    // we use an array list to store our ram.dat file
     static ArrayList<String> ram = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
-
+        // assigning their values from the args respectively
         L1s = Integer.parseInt(args[1]);
         L1E = Integer.parseInt(args[3]);
         L1b = Integer.parseInt(args[5]);
         L2s = Integer.parseInt(args[7]);
         L2E = Integer.parseInt(args[9]);
         L2b = Integer.parseInt(args[11]);
-
+        // name of the input trace
         String inputTrace = args[13];
-
+        // checking if the ram file exists
         FileInputStream ramInput = null;
         try {
             ramInput = new FileInputStream("RAM.dat");
@@ -50,33 +50,34 @@ public class Main {
             System.exit(1);
         }
 
-
+        // creating input file for ram
         DataInputStream ramFile = new DataInputStream(ramInput);
-
-        File traceFile = new File("traces/" + inputTrace);
+        // creating some file for later use
+        File traceFile = new File("traces/" + inputTrace); // this will be used to read trace file located in a traces folder
         File l1iFile = new File("L1I_output.txt");
         File l1dFile = new File("L1D_output.txt");
         File l2File = new File("L2_output.txt");
         File ramOutputFile = new File("RAM_output.txt");
-
+        // these will be  used to print the outputs of each output file given above
         PrintWriter l1iOutput = new PrintWriter(l1iFile);
         PrintWriter l1dOutput = new PrintWriter(l1dFile);
         PrintWriter l2Output = new PrintWriter(l2File);
         PrintWriter ramOutput = new PrintWriter(ramOutputFile);
 
 
-
+        // checking if the trace file exists in the trace folder
         if (!traceFile.exists())
             throw new Exception("trace file does not exist: " + traceFile.getName());
 
-
+        // initializing the cache variables
         L1I = fillCacheWith0( new String[ (int)( Math.pow(2, L1s) ) ][L1E][col], (int)( Math.pow(2, L1s) ), L1E );
         L1D = fillCacheWith0(new String[ (int)( Math.pow(2, L1s) ) ][L1E][col],(int)( Math.pow(2, L1s) ) ,L1E );
         L2 = fillCacheWith0( new String[ (int)( Math.pow(2, L2s) ) ][L2E][col], (int)( Math.pow(2, L2s) ), L2E );
 
 
-        Scanner traceScanner = new Scanner(traceFile);
-        //Scanner ramScanner = new Scanner(ramFile);
+        Scanner traceScanner = new Scanner(traceFile); // scanner to read trace file
+
+        // here we are reading the ram.dat file 1 byte at a time until we reach 8 bytes, then we store it in an arraylist
         String tempStr = "";
         for (int i = 0; ramFile.available() > 0; i++) {
             for (int j = 0; j < 8; j++) {
@@ -85,9 +86,8 @@ public class Main {
             }
             ram.add(tempStr);
             tempStr = "";
-            //System.out.println(i + ". line is : " + ram.get(i));
         }
-
+        // here we are reading the trace file and calling the according functions
         ramFile.close();
         String tempStr2 = "";
         String temparray[] ;
@@ -96,6 +96,7 @@ public class Main {
             tempStr2 = traceScanner.nextLine();
             System.out.println( tempStr2 ); // printing the input trace
             temparray = tempStr2.split(" ");
+            // checking which function to call
             if(tempStr2.charAt(0) == 'M'){
                 countArr = modifyData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3] );
                 printMessage(countArr,"M");
@@ -118,10 +119,11 @@ public class Main {
             }
 
         }
+        // here we are printing the final hit, miss and eviction numbers
         System.out.println("\nL1I-hits:"+ hitCount_L1I +" L1I-misses:"+ missCount_L1I + " L1I-evictions:" + evictionCount_L1I);
         System.out.println("L1D-hits:"+ hitCount_L1D +" L1D-misses:"+ missCount_L1D + " L1D-evictions:" + evictionCount_L1D);
         System.out.println("L2-hits:"+ hitCount_L2 +" L2-misses:"+ missCount_L2 + " L2-evictions:" + evictionCount_L2);
-
+        // here we are printing the cache contents to their according output files
         l1iOutput.println("L1I cache: " + "\ntag time valid bit data");
         printCache(L1I, L1s, L1E, l1iOutput);
 
@@ -130,7 +132,7 @@ public class Main {
 
         l2Output.println("L2 cache: " + "\ntag time valid bit data");
         printCache(L2, L2s, L2E, l2Output);
-
+        // here we are printing the ram file contents to its according output file
         int sizeOfRam = ram.size();
         for(int i = 0 ; i<sizeOfRam ; i++){
             ramOutput.println(ram.get(i));
@@ -310,7 +312,7 @@ public class Main {
             }
         }
     }
-
+    // this simple method is used to print the cache contents
     public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
         for(int i = 0; i< Math.pow(2, ls); i++){
             for(int j = 0; (j < le); j++){
@@ -318,35 +320,37 @@ public class Main {
             }
         }
     }
+    // this method is used to convert the hexadecimal address to its according integer index
     public static int addressToIndex(String str){
         String binaryStr = ""; hex2Binary(str);
         int strLength = str.length();
         for(int i = 0; i<strLength ; i++){
-            binaryStr += hex2Binary("" + str.charAt(i) );
+            binaryStr += hex2Binary("" + str.charAt(i) ); // converting hexadecimal to binary
         }
-        int index = binary2Decimal(binaryStr);
-        return index/8;
+        int index = binary2Decimal(binaryStr); // converting binary to integer
+        return index/8; // dividing by 8 to get the index
     }
+    // this method is used to initialize the cache
     public static String[][][] fillCacheWith0 (String[][][] temp ,int ls, int le){
         for(int i = 0 ; i< ls; i++){
             for(int j = 0 ; j < le ; j++){
                 for(int k = 0 ; k<4 ; k++){
-                    temp[i][j][k] = "";
+                    temp[i][j][k] = ""; // filling cache with ""
                 }
             }
 
         }
         return temp;
     }
-
+    // this method is used to convert 8 bit from unsigned int to hexadecimal
     public static String byteToHex( String str ){
         int temp = Integer.parseInt(str);
         String tempStr = "";
         for(int i = 0 ; i<8 ; i++){
-            tempStr = "" + (temp%2) + tempStr;
+            tempStr = "" + (temp%2) + tempStr; // converting the 8 bit unsigned to binary
             temp = temp/2;
         }
-        tempStr = binary2Hex(tempStr);
+        tempStr = binary2Hex(tempStr); // converting from binary to hexadecimal
         return tempStr;
     }
 
