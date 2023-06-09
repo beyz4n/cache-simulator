@@ -141,10 +141,9 @@ public class Main {
         l1dOutput.close();
         l2Output.close();
         ramOutput.close();
-
-
     }
 
+    // Method to print miss / hit behavior of caches for all instructions
     public static void printMessage(int count[][], String instruction){
 
         // For L1D
@@ -177,7 +176,7 @@ public class Main {
             }
         }
 
-        // L2
+        // For L2
         if(count[2][0] == 0){
             if(count[2][1] != 0){
                 System.out.println(" L2 miss");
@@ -192,9 +191,8 @@ public class Main {
             }
         }
 
-
-        if(instruction == "L"){
-            if(count[2][1] != 0 && count[1][1] != 0){
+        if(instruction == "L"){ // Load data
+            if(count[2][1] != 0 && count[1][1] != 0){ // if it is miss for L1D and L2 caches
                 if(L2s == 0)
                     System.out.print("Placed in L2, ");
                 else
@@ -206,21 +204,21 @@ public class Main {
                     System.out.println(" L1D set " + count[1][3]);
             }
 
-            if(count[2][1] != 0 && count[1][1] == 0){
+            if(count[2][1] != 0 && count[1][1] == 0){ // if it is only miss for L1D
                 if(L1s == 0)
                     System.out.print("Placed in L1D ");
                 else
                     System.out.print("Placed in L1D set " + count[1][3]);
             }
 
-            if(count[2][1] == 0 && count[1][1] != 0){
+            if(count[2][1] == 0 && count[1][1] != 0){ // if it is only miss for L2
                 if(L2s == 0)
                     System.out.print("Placed in L2 ");
                 else
                     System.out.print("Placed in L2 set " + count[2][3]);
             }
 
-            if(count[2][1] == 0 && count[1][1] == 0){
+            if(count[2][1] == 0 && count[1][1] == 0){ // if it is hit for all caches
                 System.out.print("Already placed in ");
                 if(count[1][1] == 0){
                     if(L1s == 0)
@@ -237,8 +235,8 @@ public class Main {
             }
         }
 
-        if(instruction == "I"){
-            if(count[2][1] != 0 && count[0][1] != 0){
+        if(instruction == "I"){ // Load instruction
+            if(count[2][1] != 0 && count[0][1] != 0){ // if it is miss for L1I and L2 caches
                 if(L2s == 0)
                     System.out.print("Placed in L2, ");
                 else
@@ -250,21 +248,21 @@ public class Main {
                     System.out.println(" L1I set " + count[0][3]);
             }
 
-            if(count[2][1] != 0 && count[0][1] == 0){
+            if(count[2][1] != 0 && count[0][1] == 0){ // if it is only miss for L1I
                 if(L1s == 0)
                     System.out.print("Placed in L1I ");
                 else
                     System.out.print("Placed in L1I set " + count[0][3]);
             }
 
-            if(count[2][1] == 0 && count[0][1] != 0){
+            if(count[2][1] == 0 && count[0][1] != 0){ // if it is only miss for L2
                 if(L2s == 0)
                     System.out.print("Placed in L2 ");
                 else
                     System.out.print("Placed in L2 set " + count[2][3]);
             }
 
-            if(count[2][1] == 0 && count[0][1] == 0){
+            if(count[2][1] == 0 && count[0][1] == 0){ // if it is hit for all caches
                 System.out.print("Already placed in ");
                 if(count[0][1] == 0){
                     if(L1s == 0)
@@ -281,42 +279,43 @@ public class Main {
             }
         }
 
-        if(instruction == "S"){
-            if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
+        if(instruction == "S"){ // Store
+            if(count[2][1] != 0 && count[0][1] != 0){ // if it is hit for L1D and L2
                 System.out.println("Store in L2, L1I, RAM");
             }
 
-            if(count[2][1] != 0 && count[0][1] == 0){
-                System.out.println("Store in L1I, RAM");
+            if(count[2][1] != 0 && count[0][1] == 0){ // if it is only hit for L1D
+                System.out.println("Store in L1D, RAM");
             }
 
-            if(count[2][1] == 0 && count[0][1] != 0){
+            if(count[2][1] == 0 && count[0][1] != 0){ // if it is only hit for L2
                 System.out.println("Store in L2, RAM");
             }
 
-            if(count[2][1] == 0 && count[0][1] == 0){ // if all miss
+            if(count[2][1] == 0 && count[0][1] == 0){ // if it is miss for all caches
                 System.out.println("Store in RAM");
             }
         }
 
-        if(instruction == "M"){
-            if(count[2][1] != 0 && count[1][1] != 0){ // If all hits
+        if(instruction == "M"){ // Modify
+            if(count[2][1] != 0 && count[1][1] != 0){ // if it is hit for L1D and L2
                 System.out.println("Modify in L2, L1D, RAM");
             }
 
-            if(count[2][1] != 0 && count[1][1] == 0){
+            if(count[2][1] != 0 && count[1][1] == 0){ // if it is only hit for L1D
                 System.out.println("Modify in L1D, RAM");
             }
 
-            if(count[2][1] == 0 && count[1][1] != 0){
+            if(count[2][1] == 0 && count[1][1] != 0){ // if it is only hit for L2
                 System.out.println("Modify in L2, RAM");
             }
 
-            if(count[2][1] == 0 && count[1][1] == 0){ // if all miss
+            if(count[2][1] == 0 && count[1][1] == 0){ // if it is miss for all caches
                 System.out.println("Modify in RAM");
             }
         }
     }
+
     // this simple method is used to print the cache contents
     public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
         for(int i = 0; i< Math.pow(2, ls); i++){
@@ -325,6 +324,7 @@ public class Main {
             }
         }
     }
+
     // this method is used to convert the hexadecimal address to its according integer index
     public static int addressToIndex(String str){
         String binaryStr = ""; hex2Binary(str);
@@ -335,6 +335,7 @@ public class Main {
         int index = binary2Decimal(binaryStr); // converting binary to integer
         return index/8; // dividing by 8 to get the index
     }
+
     // this method is used to initialize the cache
     public static String[][][] fillCacheWith0 (String[][][] temp ,int ls, int le){
         for(int i = 0 ; i< ls; i++){
@@ -347,6 +348,7 @@ public class Main {
         }
         return temp;
     }
+
     // this method is used to convert 8 bit from unsigned int to hexadecimal
     public static String byteToHex( String str ){
         int temp = Integer.parseInt(str);
@@ -500,6 +502,7 @@ public class Main {
         String modifiedData = temp;
         ram.set(addressToIndex(address), modifiedData); //update Ram
     }
+
     public static void modifyCache(String[][][] cache, int blockSize, String data, int setIndex, int eIndex){
 
         String cacheData = cache[setIndex][eIndex][3]; //get cache data
@@ -640,7 +643,7 @@ public class Main {
     }
 
 
-    // Method to check if the given set contains empty line
+    // Method to check if the given set contains empty line and cache
     public static boolean isContainEmptyLine(int S, int E, String cache[][][]){
         boolean isContain = false;
         for(int i = 0; i < E; i++){
@@ -650,7 +653,7 @@ public class Main {
         return isContain;
     }
 
-    // Method to find empty line inside the given set
+    // Method to find empty line inside the given set and cache
     public static int findEmptyLineIndex(int S, int E, String cache[][][]){
         int index = 0;
         for(int i = 0; i < E; i++){
@@ -662,7 +665,7 @@ public class Main {
         return index;
     }
 
-    // Method to find line for eviction in the given set
+    // Method to find line for eviction in the given set and cache
     // whose time value is smaller, this one is the eviction line (FIFO)
     public static int findEvictionLine(int S, int E, String cache[][][]){
         int index = 0;
@@ -679,7 +682,7 @@ public class Main {
         return index;
     }
 
-
+    // Method to calculate time value for newly added data in the given set and cache
     public static String findTime(int S, int E, String cache[][][]){
         int time = 0;
         int newTime;
@@ -692,6 +695,7 @@ public class Main {
         return "" + time;
     }
 
+    // Method to determine if it is hit or not in the given set and cache
     public static boolean isHit(int S, int E, String cache[][][] ,String tag, int id){
         boolean isHit = false;
         for(int i = 0; i < E; i++){
@@ -708,7 +712,7 @@ public class Main {
         return isHit;
     }
 
-
+    // Method to find the line value for the given tag value in the given cache
     public static int getLine(int S, int E, String cache[][][] ,String tag){
         for(int i = 0; i < E; i++){
             if(cache[S][i][0].equalsIgnoreCase(tag) && cache[S][i][2].equalsIgnoreCase("1")){
@@ -718,6 +722,7 @@ public class Main {
         return 0;
     }
 
+    // Method to calculate set index
     public static int calculate_set_index(int s, int b, String address){
         String binaryAddress = hex2Binary(address);
         String setIndexBits = binaryAddress.substring(binaryAddress.length() - ( s + b), binaryAddress.length() -  b);
@@ -733,6 +738,7 @@ public class Main {
         return tag;
     }
 
+    // Method to convert binary to hex
     public static String binary2Hex(String binary){
         int check = (int)(Math.ceil(binary.length() / 4));
         String part;
@@ -772,6 +778,7 @@ public class Main {
         return hex;
     }
 
+    // Method to convert hex to binary
     public static String hex2Binary(String hex){
         String binary = "";
 
