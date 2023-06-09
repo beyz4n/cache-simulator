@@ -98,25 +98,19 @@ public class Main {
             temparray = tempStr2.split(" ");
             if(tempStr2.charAt(0) == 'M'){
                 countArr = modifyData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3] );
-                System.out.println("L1I: " + countArr[0][0] + " hit, " + countArr[0][1]+ " miss, " + countArr[0][2] + " eviction ");
-                System.out.println("L1D: " + countArr[1][0] + " hit, " + countArr[1][1]+ " miss, " + countArr[1][2] + " eviction ");
-                System.out.println("L2: " + countArr[2][0] + " hit, " + countArr[2][1]+ " miss, " + countArr[2][2] + " eviction " );
+                printMessage(countArr,"M");
             }
             else if(tempStr2.charAt(0) == 'L'){
                 countArr = data_load( temparray[1].substring(0,temparray[1].length()-1), temparray[2] );
-                System.out.println("L1D: " + countArr[1][0] + " hit, " + countArr[1][1]+ " miss, " + countArr[1][2] + " eviction " );
-                System.out.println("L2: " + countArr[2][0] + " hit, " + countArr[2][1]+ " miss, " + countArr[2][2] + " eviction " );
+                printMessage(countArr,"L");
             }
             else if(tempStr2.charAt(0) == 'S'){
                 countArr=storeData( temparray[1].substring(0,temparray[1].length()-1), temparray[2].substring(0,temparray[2].length()-1), temparray[3]  );
-                System.out.println("L1I: " + countArr[0][0] + " hit, " + countArr[0][1]+ " miss, " + countArr[0][2] + " eviction " );
-                System.out.println("L1D: " + countArr[1][0] + " hit, " + countArr[1][1]+ " miss, " + countArr[1][2] + " eviction ");
-                System.out.println("L2: " + countArr[2][0] + " hit, " + countArr[2][1]+ " miss, " + countArr[2][2] + " eviction " );
+                printMessage(countArr,"S");
             }
             else if(tempStr2.charAt(0) == 'I'){
                 countArr = loadInstruction( temparray[1].substring(0,temparray[1].length()-1), temparray[2] );
-                System.out.println("L1I: " + countArr[0][0] + " hit, " + countArr[0][1]+ " miss, " + countArr[0][2] + " eviction ");
-                System.out.println("L2: " + countArr[2][0] + " hit, " + countArr[2][1]+ " miss, " + countArr[2][2] + " eviction "  );
+                printMessage(countArr,"I");
 
             }
             else{
