@@ -318,6 +318,7 @@ public class Main {
         }
     }
 
+    //method to print cache
     public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
         for(int i = 0; i< Math.pow(2, ls); i++){
             for(int j = 0; (j < le); j++){
@@ -325,6 +326,8 @@ public class Main {
             }
         }
     }
+
+    //method to convert address to index value
     public static int addressToIndex(String str){
         String binaryStr = ""; hex2Binary(str);
         int strLength = str.length();
@@ -334,6 +337,8 @@ public class Main {
         int index = binary2Decimal(binaryStr);
         return index/8;
     }
+
+    //method to fill cache with 0s
     public static String[][][] fillCacheWith0 (String[][][] temp ,int ls, int le){
         for(int i = 0 ; i< ls; i++){
             for(int j = 0 ; j < le ; j++){
@@ -346,6 +351,7 @@ public class Main {
         return temp;
     }
 
+    //method to convert byte to hexadecimal
     public static String byteToHex( String str ){
         int temp = Integer.parseInt(str);
         String tempStr = "";
@@ -362,7 +368,7 @@ public class Main {
         int[][] count1 = data_load(address, size);   // first call function to load data
         int[][] count2 = storeData_forModify(address,size,data); //then call function to store data
 
-        for(int i = 0 ; i < 3; i++){
+        for(int i = 0 ; i < 3; i++){  //sum of the counts will give us total number of hits and misses
             totalCount[1][i] = count1[1][i] +  count2[1][i];
             totalCount[2][i] = count1[2][i] +  count2[2][i];
         }
@@ -373,12 +379,12 @@ public class Main {
     }
 
     public static int[][] storeData_forModify(String address, String size, String data){
-        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}}; //count array for keep hit and miss values of each caches
         int L1setIndex = calculate_set_index(L1s, L1b, address); //calculates set value of the address for L1
         int L2setIndex = calculate_set_index(L2s, L2b, address); //calculates set value of the address for L2
         String L1tag = calculate_tag(L1s, L1b, address); //calculates tag value of the address for L1
         String L2tag = calculate_tag(L2s, L2b, address); //calculates tag value of the address for L2
-        boolean isHit_L1I = isHit(L1setIndex,L1E, L1I, L1tag, 1);
+        boolean isHit_L1I = isHit(L1setIndex,L1E, L1I, L1tag, 1); //returns boolean value of hit for each caches
         boolean isHit_L1D = isHit(L1setIndex,L1E, L1D, L1tag,2);
         boolean isHit_L2 = isHit(L1setIndex,L2E, L2, L2tag, 3);
 
@@ -391,13 +397,13 @@ public class Main {
             int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
             modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
 
-            count[1][0]++;
-            count[1][3] = L1setIndex;
+            count[1][0]++;  //increase hit of L1D
+            count[1][3] = L1setIndex; //set line index
         }
         else{
-            missCount_L1D++;
+            missCount_L1D++;  //increase miss of L1D
             count[1][1]++;
-            count[1][3] = L1setIndex;
+            count[1][3] = L1setIndex; //set line index
         }
         //ıf there is a hit in L2
         if(isHit_L2){
@@ -407,15 +413,15 @@ public class Main {
             modifyRam(data, blocksize, address); //write data to memory
             int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
             modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
-            count[2][0]++;
-            count[2][3] = L2setIndex;
+            count[2][0]++; //increase hit of L2
+            count[2][3] = L2setIndex;  //set line index
         }
         else {
-            missCount_L2++;
+            missCount_L2++;   //increase miss of L2
             count[2][1]++;
-            count[2][3] = L2setIndex;
+            count[2][3] = L2setIndex;   //set line index
         }
-        if(!isHit_L1I && !isHit_L1D && !isHit_L2){
+        if(!isHit_L1I && !isHit_L1D && !isHit_L2){ //if none of the caches are hit
             modifyRam(data,0, address);
         }
 
@@ -423,12 +429,12 @@ public class Main {
     }
 
     public static int[][] storeData(String address, String size, String data){
-        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}}; //count array for keep hit and miss values of each caches
         int L1setIndex = calculate_set_index(L1s, L1b, address); //calculates set value of the address for L1
         int L2setIndex = calculate_set_index(L2s, L2b, address); //calculates set value of the address for L2
         String L1tag = calculate_tag(L1s, L1b, address); //calculates tag value of the address for L1
         String L2tag = calculate_tag(L2s, L2b, address); //calculates tag value of the address for L2
-        boolean isHit_L1I = isHit(L1setIndex,L1E, L1I, L1tag, 1);
+        boolean isHit_L1I = isHit(L1setIndex,L1E, L1I, L1tag, 1); //returns boolean value of hit for each caches
         boolean isHit_L1D = isHit(L1setIndex,L1E, L1D, L1tag,2);
         boolean isHit_L2 = isHit(L1setIndex,L2E, L2, L2tag, 3);
 
@@ -441,13 +447,13 @@ public class Main {
             modifyRam(data, blocksize, address); //write data to memory
             int L1eIndex = getLine(L1s,L1E, L1I, L1tag); //calculate e index
             modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex); //write data to cache
-            count[0][0]++;
-            count[0][3] = L1setIndex;
+            count[0][0]++; //increase hit of L1I
+            count[0][3] = L1setIndex;   //set line index
         }
         else{
-            missCount_L1I++;
+            missCount_L1I++;  //increase miss of L1D
             count[0][1]++;
-            count[0][3] = L1setIndex;
+            count[0][3] = L1setIndex;  //set line index
         }
         //If there is a hit in L1D
         if(isHit_L1D){
@@ -458,13 +464,13 @@ public class Main {
             int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
             modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
 
-            count[1][0]++;
-            count[1][3] = L1setIndex;
+            count[1][0]++;    //increase hit of L1D
+            count[1][3] = L1setIndex;   //set line index
         }
         else{
-            missCount_L1D++;
+            missCount_L1D++;  //increase miss of L1D
             count[1][1]++;
-            count[1][3] = L1setIndex;
+            count[1][3] = L1setIndex; //set line index
         }
         //ıf there is a hit in L2
         if(isHit_L2){
@@ -474,15 +480,15 @@ public class Main {
             modifyRam(data, blocksize, address); //write data to memory
             int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
             modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
-            count[2][0]++;
-            count[2][3] = L2setIndex;
+            count[2][0]++;   //increase hit of L2
+            count[2][3] = L2setIndex;   //set line index
         }
         else {
-            missCount_L2++;
+            missCount_L2++;   //increase miss of L2
             count[2][1]++;
-            count[2][3] = L2setIndex;
+            count[2][3] = L2setIndex;  //set line index
         }
-        if(!isHit_L1I && !isHit_L1D && !isHit_L2){
+        if(!isHit_L1I && !isHit_L1D && !isHit_L2){   //if none of the caches are hit
             modifyRam(data,0, address);
         }
 
@@ -509,25 +515,26 @@ public class Main {
     }
 
     public static int[][] loadInstruction(String address, String size){
-        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
-        int L1setIndex = calculate_set_index(L1s, L1b, address);
-        String L1tag = calculate_tag(L1s, L1b, address);
+        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};    //count array for keep hit and miss values of each caches
+        int L1setIndex = calculate_set_index(L1s, L1b, address);   //calculate set index for L1
+        String L1tag = calculate_tag(L1s, L1b, address);  //calculate tag value of L1
         int lineIndex;
-        count[0][3] = L1setIndex;
+        count[0][3] = L1setIndex;  //set line index
+
         // if it is miss for L1I
         if(!isHit(L1setIndex, L1E, L1I, L1tag, 2)){
-            missCount_L1I++;
+            missCount_L1I++;  //increase miss for L1
             count[0][1]++;
             if(isContainEmptyLine(L1setIndex, L1E, L1I)){
                 lineIndex = findEmptyLineIndex(L1setIndex, L1E, L1I);
             }
             else{
-                evictionCount_L1I++;
+                evictionCount_L1I++;  //increase eviction for L1
                 count[0][2]++;
                 lineIndex = findEvictionLine(L1setIndex, L1E, L1I);
             }
 
-            L1I[L1setIndex][lineIndex][0] = L1tag;
+            L1I[L1setIndex][lineIndex][0] = L1tag;   //update L1 cache
             L1I[L1setIndex][lineIndex][1] = findTime(L1setIndex, L1E, L1I);
             L1I[L1setIndex][lineIndex][2] = "1";
 
@@ -538,24 +545,25 @@ public class Main {
 
         }
         else {
-            count[0][0]++;
+            count[0][0]++;  //increase hit count for L1
         }
         // check for L2
-        int L2setIndex = calculate_set_index(L2s, L2b, address);
-        String L2tag = calculate_tag(L2s, L2b, address);
-        count[2][3] = L2setIndex;
+        int L2setIndex = calculate_set_index(L2s, L2b, address);  //count array for keep hit and miss values of each caches
+        String L2tag = calculate_tag(L2s, L2b, address);  //calculate set index for L2
+        count[2][3] = L2setIndex; //set index value
+
         // if it is miss for L2
         if(!isHit(L2setIndex, L2E, L2, L2tag, 3)) {
-            missCount_L2++;
+            missCount_L2++; //increase miss count
             count[2][1]++;
             if (isContainEmptyLine(L2setIndex, L2E, L2)) {
                 lineIndex = findEmptyLineIndex(L2setIndex, L2E, L2);
             } else {
-                evictionCount_L2++;
+                evictionCount_L2++;  //increase hit count
                 lineIndex = findEvictionLine(L2setIndex, L2E, L2);
                 count[2][2]++;
             }
-            L2[L2setIndex][lineIndex][0] = L2tag;
+            L2[L2setIndex][lineIndex][0] = L2tag;   //update cache
             L2[L2setIndex][lineIndex][1] = findTime(L2setIndex, L2E, L2);
             L2[L1setIndex][lineIndex][2] = "1";
 
@@ -565,7 +573,7 @@ public class Main {
             L2[L1setIndex][lineIndex][3] = ram.get(addressToIndex(address)).substring(blocksize);
         }
         else{
-            count[2][0]++;
+            count[2][0]++;  //increase hit count for L1
         }
         return count;
     }
