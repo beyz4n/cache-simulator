@@ -320,7 +320,7 @@ public class Main {
     public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
         for(int i = 0; i< Math.pow(2, ls); i++){
             for(int j = 0; (j < le); j++){
-                writer.println(cache[i][j][0] + " " + cache[i][j][1] + " " + cache[i][j][2] + " " + cache[i][j][3]);
+                writer.println(cache[i][j][0] + " " + cache[i][j][1] + " " + cache[i][j][2] + " " + cache[i][j][3]); // initializing the cache
             }
         }
     }
