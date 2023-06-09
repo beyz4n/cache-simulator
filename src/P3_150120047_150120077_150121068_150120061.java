@@ -2,7 +2,7 @@ import java.io.*;
 import java.lang.*;
 import java.util.*;
 
-public class Main {
+public class P3_150120047_150120077_150121068_150120061 {
 
     static int hitCount_L1I = 0; // storing l1i hit count
     static int missCount_L1I = 0; // storing l1i miss count
