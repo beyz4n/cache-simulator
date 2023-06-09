@@ -276,15 +276,15 @@ public class Main {
 
         if(instruction == "S"){
             if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
-                System.out.print("Store in L2, L1I, RAM");
+                System.out.println("Store in L2, L1I, RAM");
             }
 
             if(count[2][1] != 0 && count[0][1] == 0){
-                System.out.print("Store in L1I, RAM");
+                System.out.println("Store in L1I, RAM");
             }
 
             if(count[2][1] == 0 && count[0][1] != 0){
-                System.out.print("Store in L2, RAM");
+                System.out.println("Store in L2, RAM");
             }
 
             if(count[2][1] == 0 && count[0][1] == 0){ // if all miss
@@ -294,15 +294,15 @@ public class Main {
 
         if(instruction == "M"){
             if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
-                System.out.print("Modify in L2, L1I, RAM");
+                System.out.println("Modify in L2, L1I, RAM");
             }
 
             if(count[2][1] != 0 && count[0][1] == 0){
-                System.out.print("Modify in L1I, RAM");
+                System.out.println("Modify in L1I, RAM");
             }
 
             if(count[2][1] == 0 && count[0][1] != 0){
-                System.out.print("Modify in L2, RAM");
+                System.out.println("Modify in L2, RAM");
             }
 
             if(count[2][1] == 0 && count[0][1] == 0){ // if all miss
