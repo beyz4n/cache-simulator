@@ -216,7 +216,7 @@ public class Main {
                 if(L2s == 0)
                     System.out.print("Placed in L2 ");
                 else
-                    System.out.print("Placed in L2 set " + count[1][3]);
+                    System.out.print("Placed in L2 set " + count[2][3]);
             }
 
             if(count[2][1] == 0 && count[1][1] == 0){
@@ -231,10 +231,71 @@ public class Main {
                     if(L2s == 0)
                         System.out.print("L2 ");
                     else
-                        System.out.print("L2 set " + count[1][3]);
+                        System.out.print("L2 set " + count[2][3]);
                 }
             }
         }
+
+
+        if(instruction == "I"){
+            if(count[2][1] != 0 && count[0][1] != 0){
+                if(L2s == 0)
+                    System.out.print("Already placed in L2, ");
+                else
+                    System.out.print("Already placed in L2 set " + count[2][3] + ", ");
+
+                if(L1s == 0)
+                    System.out.println(" L1I");
+                else
+                    System.out.println(" L1I set " + count[0][3]);
+            }
+
+            if(count[2][1] != 0 && count[0][1] == 0){
+                if(L1s == 0)
+                    System.out.print("Placed in L1I ");
+                else
+                    System.out.print("Placed in L1I set " + count[0][3]);
+            }
+
+            if(count[2][1] == 0 && count[0][1] != 0){
+                if(L2s == 0)
+                    System.out.print("Placed in L2 ");
+                else
+                    System.out.print("Placed in L2 set " + count[2][3]);
+            }
+
+            if(count[2][1] == 0 && count[0][1] == 0){
+                System.out.print("Placed in ");
+                if(count[0][1] == 0){
+                    if(L1s == 0)
+                        System.out.print("L1I ,");
+                    else
+                        System.out.print("L1I set " + count[0][3] + ", ");
+                }
+                if(count[2][1] == 0){
+                    if(L2s == 0)
+                        System.out.print("L2 ");
+                    else
+                        System.out.print("L2 set " + count[2][3]);
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
