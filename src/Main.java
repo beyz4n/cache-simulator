@@ -236,7 +236,6 @@ public class Main {
             }
         }
 
-
         if(instruction == "I"){
             if(count[2][1] != 0 && count[0][1] != 0){
                 if(L2s == 0)
@@ -281,26 +280,41 @@ public class Main {
             }
         }
 
+        if(instruction == "S"){
+            if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
+                System.out.print("Store in L2, L1I, RAM");
+            }
 
+            if(count[2][1] != 0 && count[0][1] == 0){
+                System.out.print("Store in L1I, RAM");
+            }
 
+            if(count[2][1] == 0 && count[0][1] != 0){
+                System.out.print("Store in L2, RAM");
+            }
 
+            if(count[2][1] == 0 && count[0][1] == 0){ // if all miss
+                System.out.println("Store in RAM");
+            }
+        }
 
+        if(instruction == "M"){
+            if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
+                System.out.print("Modify in L2, L1I, RAM");
+            }
 
+            if(count[2][1] != 0 && count[0][1] == 0){
+                System.out.print("Modify in L1I, RAM");
+            }
 
+            if(count[2][1] == 0 && count[0][1] != 0){
+                System.out.print("Modify in L2, RAM");
+            }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+            if(count[2][1] == 0 && count[0][1] == 0){ // if all miss
+                System.out.println("Modify in RAM");
+            }
+        }
     }
 
     public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
