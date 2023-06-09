@@ -186,7 +186,7 @@ public class Main {
         }
 
 
-        if(instruction == "L"){
+        if(instruction.equalsIgnoreCase("L")){
             if(count[2][1] != 0 && count[1][1] != 0){
                 if(L2s == 0)
                     System.out.print("Placed in L2, ");
@@ -230,7 +230,7 @@ public class Main {
             }
         }
 
-        if(instruction == "I"){
+        if(instruction.equalsIgnoreCase( "I")){
             if(count[2][1] != 0 && count[0][1] != 0){
                 if(L2s == 0)
                     System.out.print("Placed in L2, ");
@@ -274,7 +274,7 @@ public class Main {
             }
         }
 
-        if(instruction == "S"){
+        if(instruction.equalsIgnoreCase("S")){
             if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
                 System.out.println("Store in L2, L1I, RAM");
             }
@@ -292,7 +292,7 @@ public class Main {
             }
         }
 
-        if(instruction == "M"){
+        if(instruction.equalsIgnoreCase("M")){
             if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
                 System.out.println("Modify in L2, L1I, RAM");
             }
