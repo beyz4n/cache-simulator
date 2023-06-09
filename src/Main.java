@@ -189,9 +189,9 @@ public class Main {
         if(instruction == "L"){
             if(count[2][1] != 0 && count[1][1] != 0){
                 if(L2s == 0)
-                    System.out.print("Already placed in L2, ");
+                    System.out.print("Placed in L2, ");
                 else
-                    System.out.print("Already placed in L2 set " + count[2][3] + ", ");
+                    System.out.print("Placed in L2 set " + count[2][3] + ", ");
 
                 if(L1s == 0)
                     System.out.println(" L1D");
@@ -208,9 +208,9 @@ public class Main {
 
             if(count[2][1] == 0 && count[1][1] != 0){
                 if(L2s == 0)
-                    System.out.print("Placed in L2 ");
+                    System.out.print("Already placed in L2 ");
                 else
-                    System.out.print("Placed in L2 set " + count[2][3]);
+                    System.out.print("Already placed in L2 set " + count[2][3]);
             }
 
             if(count[2][1] == 0 && count[1][1] == 0){
@@ -233,9 +233,9 @@ public class Main {
         if(instruction == "I"){
             if(count[2][1] != 0 && count[0][1] != 0){
                 if(L2s == 0)
-                    System.out.print("Already placed in L2, ");
+                    System.out.print("Placed in L2, ");
                 else
-                    System.out.print("Already placed in L2 set " + count[2][3] + ", ");
+                    System.out.print("Placed in L2 set " + count[2][3] + ", ");
 
                 if(L1s == 0)
                     System.out.println(" L1I");
@@ -252,9 +252,9 @@ public class Main {
 
             if(count[2][1] == 0 && count[0][1] != 0){
                 if(L2s == 0)
-                    System.out.print("Placed in L2 ");
+                    System.out.print("Already placed in L2 ");
                 else
-                    System.out.print("Placed in L2 set " + count[2][3]);
+                    System.out.print("Already placed in L2 set " + count[2][3]);
             }
 
             if(count[2][1] == 0 && count[0][1] == 0){
