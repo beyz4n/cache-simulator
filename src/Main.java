@@ -293,19 +293,19 @@ public class Main {
         }
 
         if(instruction == "M"){
-            if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
-                System.out.println("Modify in L2, L1I, RAM");
+            if(count[2][1] != 0 && count[1][1] != 0){ // If all hits
+                System.out.println("Modify in L2, L1D, RAM");
             }
 
-            if(count[2][1] != 0 && count[0][1] == 0){
-                System.out.println("Modify in L1I, RAM");
+            if(count[2][1] != 0 && count[1][1] == 0){
+                System.out.println("Modify in L1D, RAM");
             }
 
-            if(count[2][1] == 0 && count[0][1] != 0){
+            if(count[2][1] == 0 && count[1][1] != 0){
                 System.out.println("Modify in L2, RAM");
             }
 
-            if(count[2][1] == 0 && count[0][1] == 0){ // if all miss
+            if(count[2][1] == 0 && count[1][1] == 0){ // if all miss
                 System.out.println("Modify in RAM");
             }
         }
