@@ -146,34 +146,28 @@ public class Main {
     public static void printMessage(int count[][], String instruction){
 
         // L1D
-        if(instruction.equalsIgnoreCase("L") && instruction.equalsIgnoreCase("S")
-                && instruction.equalsIgnoreCase("M")){
-            if(count[1][0] == 0){
-                if(count[1][1] != 0){
-                    System.out.print("L1D miss, ");
-                }
+        if(count[1][0] == 0){
+            if(count[1][1] != 0){
+                System.out.print("L1D miss, ");
+            }
+        }
+        else{
+            if(count[1][1] != 0){
+                System.out.print("L1D miss, L1D hit, ");
             }
             else{
-                if(count[1][1] != 0){
-                    System.out.print("L1D miss, L1D hit, ");
-                }
-                else{
-                    System.out.print("L1D hit, ");
-                }
+                System.out.print("L1D hit, ");
             }
         }
 
-
         // L1I
-        if(instruction.equalsIgnoreCase("I")){
-            if(count[0][0] == 0){
-                if(count[0][1] != 0){
-                    System.out.print("L1I miss, ");
-                }
+        if(count[0][0] == 0){
+            if(count[0][1] != 0){
+                System.out.print("L1I miss, ");
             }
-            else{
-                System.out.print("L1I hit, ");
-            }
+        }
+        else{
+            System.out.print("L1I hit, ");
         }
 
         // L2
@@ -192,7 +186,7 @@ public class Main {
         }
 
 
-        if(instruction.equalsIgnoreCase("L")){
+        if(instruction == "L"){
             if(count[2][1] != 0 && count[1][1] != 0){
                 if(L2s == 0)
                     System.out.print("Placed in L2, ");
@@ -236,7 +230,7 @@ public class Main {
             }
         }
 
-        if(instruction.equalsIgnoreCase( "I")){
+        if(instruction == "I"){
             if(count[2][1] != 0 && count[0][1] != 0){
                 if(L2s == 0)
                     System.out.print("Placed in L2, ");
@@ -280,7 +274,7 @@ public class Main {
             }
         }
 
-        if(instruction.equalsIgnoreCase("S")){
+        if(instruction == "S"){
             if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
                 System.out.println("Store in L2, L1I, RAM");
             }
@@ -298,20 +292,20 @@ public class Main {
             }
         }
 
-        if(instruction.equalsIgnoreCase("M")){
-            if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
-                System.out.println("Modify in L2, L1I, RAM");
+        if(instruction == "M"){
+            if(count[2][1] != 0 && count[1][1] != 0){ // If all hits
+                System.out.println("Modify in L2, L1D, RAM");
             }
 
-            if(count[2][1] != 0 && count[0][1] == 0){
-                System.out.println("Modify in L1I, RAM");
+            if(count[2][1] != 0 && count[1][1] == 0){
+                System.out.println("Modify in L1D, RAM");
             }
 
-            if(count[2][1] == 0 && count[0][1] != 0){
+            if(count[2][1] == 0 && count[1][1] != 0){
                 System.out.println("Modify in L2, RAM");
             }
 
-            if(count[2][1] == 0 && count[0][1] == 0){ // if all miss
+            if(count[2][1] == 0 && count[1][1] == 0){ // if all miss
                 System.out.println("Modify in RAM");
             }
         }
@@ -349,12 +343,12 @@ public class Main {
         int temp = Integer.parseInt(str);
         String tempStr = "";
         String tempStr2 = "";
-       for(int i = 0 ; i<8 ; i++){
-           tempStr = "" + (temp%2) + tempStr;
-           temp = temp/2;
-       }
-       tempStr = binary2Hex(tempStr);
-       tempStr2 = "" + tempStr.charAt(1) + tempStr.charAt(0);
+        for(int i = 0 ; i<8 ; i++){
+            tempStr = "" + (temp%2) + tempStr;
+            temp = temp/2;
+        }
+        tempStr = binary2Hex(tempStr);
+        tempStr2 = "" + tempStr.charAt(1) + tempStr.charAt(0);
 
 
         return tempStr2;
@@ -406,7 +400,7 @@ public class Main {
             int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
             modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
 
-           count[1][0]++;
+            count[1][0]++;
             count[1][3] = L1setIndex;
         }
         else{
@@ -485,7 +479,7 @@ public class Main {
             L1I[L1setIndex][lineIndex][3] = ram.get(addressToIndex(address)).substring(blocksize);
 
         }
-       else {
+        else {
             count[0][0]++;
         }
         // check for L2
@@ -669,10 +663,10 @@ public class Main {
 
     // Method to calculate tag
     public static String calculate_tag(int s, int b, String address){
-       String binaryAddress = hex2Binary(address);
-       String tag = binaryAddress.substring(0, binaryAddress.length() - ( s + b));
-       tag = binary2Hex(tag);
-       return tag;
+        String binaryAddress = hex2Binary(address);
+        String tag = binaryAddress.substring(0, binaryAddress.length() - ( s + b));
+        tag = binary2Hex(tag);
+        return tag;
     }
 
     public static String binary2Hex(String binary){
