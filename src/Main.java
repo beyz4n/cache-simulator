@@ -133,7 +133,7 @@ public class Main {
 
         int sizeOfRam = ram.size();
         for(int i = 0 ; i<sizeOfRam ; i++){
-            ramOutput.println(ram.get(i));
+            ramOutput.println(ram.get(i).toUpperCase());
         }
         l1iOutput.close();
         l1dOutput.close();
@@ -146,34 +146,28 @@ public class Main {
     public static void printMessage(int count[][], String instruction){
 
         // L1D
-        if(instruction.equalsIgnoreCase("L") && instruction.equalsIgnoreCase("S")
-                && instruction.equalsIgnoreCase("M")){
-            if(count[1][0] == 0){
-                if(count[1][1] != 0){
-                    System.out.print("L1D miss, ");
-                }
+        if(count[1][0] == 0){
+            if(count[1][1] != 0){
+                System.out.print("L1D miss, ");
+            }
+        }
+        else{
+            if(count[1][1] != 0){
+                System.out.print("L1D miss, L1D hit, ");
             }
             else{
-                if(count[1][1] != 0){
-                    System.out.print("L1D miss, L1D hit, ");
-                }
-                else{
-                    System.out.print("L1D hit, ");
-                }
+                System.out.print("L1D hit, ");
             }
         }
 
-
         // L1I
-        if(instruction.equalsIgnoreCase("I")){
-            if(count[0][0] == 0){
-                if(count[0][1] != 0){
-                    System.out.print("L1I miss, ");
-                }
+        if(count[0][0] == 0){
+            if(count[0][1] != 0){
+                System.out.print("L1I miss, ");
             }
-            else{
-                System.out.print("L1I hit, ");
-            }
+        }
+        else{
+            System.out.print("L1I hit, ");
         }
 
         // L2
@@ -192,7 +186,7 @@ public class Main {
         }
 
 
-        if(instruction.equalsIgnoreCase("L")){
+        if(instruction == "L"){
             if(count[2][1] != 0 && count[1][1] != 0){
                 if(L2s == 0)
                     System.out.print("Placed in L2, ");
@@ -236,7 +230,7 @@ public class Main {
             }
         }
 
-        if(instruction.equalsIgnoreCase( "I")){
+        if(instruction == "I"){
             if(count[2][1] != 0 && count[0][1] != 0){
                 if(L2s == 0)
                     System.out.print("Placed in L2, ");
@@ -280,7 +274,7 @@ public class Main {
             }
         }
 
-        if(instruction.equalsIgnoreCase("S")){
+        if(instruction == "S"){
             if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
                 System.out.println("Store in L2, L1I, RAM");
             }
@@ -298,20 +292,20 @@ public class Main {
             }
         }
 
-        if(instruction.equalsIgnoreCase("M")){
-            if(count[2][1] != 0 && count[0][1] != 0){ // If all hits
-                System.out.println("Modify in L2, L1I, RAM");
+        if(instruction == "M"){
+            if(count[2][1] != 0 && count[1][1] != 0){ // If all hits
+                System.out.println("Modify in L2, L1D, RAM");
             }
 
-            if(count[2][1] != 0 && count[0][1] == 0){
-                System.out.println("Modify in L1I, RAM");
+            if(count[2][1] != 0 && count[1][1] == 0){
+                System.out.println("Modify in L1D, RAM");
             }
 
-            if(count[2][1] == 0 && count[0][1] != 0){
+            if(count[2][1] == 0 && count[1][1] != 0){
                 System.out.println("Modify in L2, RAM");
             }
 
-            if(count[2][1] == 0 && count[0][1] == 0){ // if all miss
+            if(count[2][1] == 0 && count[1][1] == 0){ // if all miss
                 System.out.println("Modify in RAM");
             }
         }
@@ -348,22 +342,18 @@ public class Main {
     public static String byteToHex( String str ){
         int temp = Integer.parseInt(str);
         String tempStr = "";
-        String tempStr2 = "";
-       for(int i = 0 ; i<8 ; i++){
-           tempStr = "" + (temp%2) + tempStr;
-           temp = temp/2;
-       }
-       tempStr = binary2Hex(tempStr);
-       tempStr2 = "" + tempStr.charAt(1) + tempStr.charAt(0);
-
-
-        return tempStr2;
+        for(int i = 0 ; i<8 ; i++){
+            tempStr = "" + (temp%2) + tempStr;
+            temp = temp/2;
+        }
+        tempStr = binary2Hex(tempStr);
+        return tempStr;
     }
 
     public static int[][] modifyData(String address, String size, String data){
         int[][] totalCount = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
         int[][] count1 = data_load(address, size);   // first call function to load data
-        int[][] count2 = storeData(address,size,data); //then call function to store data
+        int[][] count2 = storeData_forModify(address,size,data); //then call function to store data
 
         for(int i = 0 ; i < 3; i++){
             totalCount[1][i] = count1[1][i] +  count2[1][i];
@@ -374,15 +364,70 @@ public class Main {
 
         return totalCount;
     }
+
+    public static int[][] storeData_forModify(String address, String size, String data){
+        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+        int L1setIndex = calculate_set_index(L1s, L1b, address); //calculates set value of the address for L1
+        int L2setIndex = calculate_set_index(L2s, L2b, address); //calculates set value of the address for L2
+        String L1tag = calculate_tag(L1s, L1b, address); //calculates tag value of the address for L1
+        String L2tag = calculate_tag(L2s, L2b, address); //calculates tag value of the address for L2
+        boolean isHit_L1I = isHit(L1setIndex,L1E, L1I, L1tag, 1);
+        boolean isHit_L1D = isHit(L1setIndex,L1E, L1D, L1tag,2);
+        boolean isHit_L2 = isHit(L1setIndex,L2E, L2, L2tag, 3);
+
+        //If there is a hit in L1D
+        if(isHit_L1D){
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block);  // change the value to decimal since we want to find the starting index of the data in the block
+            modifyRam(data, blocksize, address); //write data to memory
+            int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
+            modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
+
+            count[1][0]++;
+            count[1][3] = L1setIndex;
+        }
+        else{
+            missCount_L1D++;
+            count[1][1]++;
+            count[1][3] = L1setIndex;
+        }
+        //ıf there is a hit in L2
+        if(isHit_L2){
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
+            modifyRam(data, blocksize, address); //write data to memory
+            int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
+            modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
+            count[2][0]++;
+            count[2][3] = L2setIndex;
+        }
+        else {
+            missCount_L2++;
+            count[2][1]++;
+            count[2][3] = L2setIndex;
+        }
+        if(!isHit_L1I && !isHit_L1D && !isHit_L2){
+            modifyRam(data,0, address);
+        }
+
+        return count;
+    }
+
     public static int[][] storeData(String address, String size, String data){
         int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
         int L1setIndex = calculate_set_index(L1s, L1b, address); //calculates set value of the address for L1
         int L2setIndex = calculate_set_index(L2s, L2b, address); //calculates set value of the address for L2
         String L1tag = calculate_tag(L1s, L1b, address); //calculates tag value of the address for L1
         String L2tag = calculate_tag(L2s, L2b, address); //calculates tag value of the address for L2
+        boolean isHit_L1I = isHit(L1setIndex,L1E, L1I, L1tag, 1);
+        boolean isHit_L1D = isHit(L1setIndex,L1E, L1D, L1tag,2);
+        boolean isHit_L2 = isHit(L1setIndex,L2E, L2, L2tag, 3);
+
 
         // If there is a hit in L1I
-        if(isHit(L1setIndex,L1E, L1I, L1tag, 1)){
+        if(isHit_L1I){
             String addressBinary = hex2Binary(address); //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
             int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
@@ -398,7 +443,7 @@ public class Main {
             count[0][3] = L1setIndex;
         }
         //If there is a hit in L1D
-        if(isHit(L1setIndex,L1E, L1D, L1tag,2)){
+        if(isHit_L1D){
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
             int blocksize = binary2Decimal(block);  // change the value to decimal since we want to find the starting index of the data in the block
@@ -406,7 +451,7 @@ public class Main {
             int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
             modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
 
-           count[1][0]++;
+            count[1][0]++;
             count[1][3] = L1setIndex;
         }
         else{
@@ -415,7 +460,7 @@ public class Main {
             count[1][3] = L1setIndex;
         }
         //ıf there is a hit in L2
-        if(isHit(L1setIndex,L2E, L2, L2tag, 3)){
+        if(isHit_L2){
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
             int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
@@ -430,7 +475,7 @@ public class Main {
             count[2][1]++;
             count[2][3] = L2setIndex;
         }
-        if(!isHit(L1setIndex,L1E, L1I, L1tag, 1) && !isHit(L1setIndex,L1E, L1D, L1tag, 2) && !isHit(L1setIndex,L2E, L2, L2tag, 3)){
+        if(!isHit_L1I && !isHit_L1D && !isHit_L2){
             modifyRam(data,0, address);
         }
 
@@ -485,7 +530,7 @@ public class Main {
             L1I[L1setIndex][lineIndex][3] = ram.get(addressToIndex(address)).substring(blocksize);
 
         }
-       else {
+        else {
             count[0][0]++;
         }
         // check for L2
@@ -600,8 +645,10 @@ public class Main {
     public static int findEmptyLineIndex(int S, int E, String cache[][][]){
         int index = 0;
         for(int i = 0; i < E; i++){
-            if(cache[S][i][0].equalsIgnoreCase(""))
+            if(cache[S][i][0].equalsIgnoreCase("")) {
                 index = i;
+                break;
+            }
         }
         return index;
     }
@@ -617,6 +664,7 @@ public class Main {
             if( new_min < min){
                 min = new_min;
                 index = i;
+                break;
             }
         }
         return index;
@@ -651,6 +699,7 @@ public class Main {
         return isHit;
     }
 
+
     public static int getLine(int S, int E, String cache[][][] ,String tag){
         for(int i = 0; i < E; i++){
             if(cache[S][i][0].equalsIgnoreCase(tag) && cache[S][i][2].equalsIgnoreCase("1")){
@@ -669,10 +718,10 @@ public class Main {
 
     // Method to calculate tag
     public static String calculate_tag(int s, int b, String address){
-       String binaryAddress = hex2Binary(address);
-       String tag = binaryAddress.substring(0, binaryAddress.length() - ( s + b));
-       tag = binary2Hex(tag);
-       return tag;
+        String binaryAddress = hex2Binary(address);
+        String tag = binaryAddress.substring(0, binaryAddress.length() - ( s + b));
+        tag = binary2Hex(tag);
+        return tag;
     }
 
     public static String binary2Hex(String binary){
@@ -693,22 +742,22 @@ public class Main {
                 }
             }
             switch (part) {
-                case "0000": hex += "0"; break;
-                case "0001": hex += "1"; break;
-                case "0010": hex += "2"; break;
-                case "0011": hex += "3"; break;
-                case "0100": hex += "4"; break;
-                case "0101": hex += "5"; break;
-                case "0110": hex += "6"; break;
-                case "0111": hex += "7"; break;
-                case "1000": hex += "8"; break;
-                case "1001": hex += "9"; break;
-                case "1010": hex += "A"; break;
-                case "1011": hex += "B"; break;
-                case "1100": hex += "C"; break;
-                case "1101": hex += "D"; break;
-                case "1110": hex += "E"; break;
-                case "1111": hex += "F"; break;
+                case "0000": hex = "0" + hex; break;
+                case "0001": hex = "1" + hex; break;
+                case "0010": hex = "2" + hex; break;
+                case "0011": hex = "3" + hex; break;
+                case "0100": hex = "4" + hex; break;
+                case "0101": hex = "5" + hex; break;
+                case "0110": hex = "6" + hex; break;
+                case "0111": hex = "7" + hex; break;
+                case "1000": hex = "8" + hex; break;
+                case "1001": hex = "9" + hex; break;
+                case "1010": hex = "A" + hex; break;
+                case "1011": hex = "B" + hex; break;
+                case "1100": hex = "C" + hex; break;
+                case "1101": hex = "D" + hex; break;
+                case "1110": hex = "E" + hex; break;
+                case "1111": hex = "F" + hex; break;
             }
         }
         return hex;
