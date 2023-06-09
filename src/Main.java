@@ -146,28 +146,34 @@ public class Main {
     public static void printMessage(int count[][], String instruction){
 
         // L1D
-        if(count[1][0] == 0){
-            if(count[1][1] != 0){
-                System.out.print("L1D miss, ");
-            }
-        }
-        else{
-            if(count[1][1] != 0){
-                System.out.print("L1D miss, L1D hit, ");
+        if(instruction.equalsIgnoreCase("L") && instruction.equalsIgnoreCase("S")
+                && instruction.equalsIgnoreCase("M")){
+            if(count[1][0] == 0){
+                if(count[1][1] != 0){
+                    System.out.print("L1D miss, ");
+                }
             }
             else{
-                System.out.print("L1D hit, ");
+                if(count[1][1] != 0){
+                    System.out.print("L1D miss, L1D hit, ");
+                }
+                else{
+                    System.out.print("L1D hit, ");
+                }
             }
         }
 
+
         // L1I
-        if(count[0][0] == 0){
-            if(count[0][1] != 0){
-                System.out.print("L1I miss, ");
+        if(instruction.equalsIgnoreCase("I")){
+            if(count[0][0] == 0){
+                if(count[0][1] != 0){
+                    System.out.print("L1I miss, ");
+                }
             }
-        }
-        else{
-            System.out.print("L1I hit, ");
+            else{
+                System.out.print("L1I hit, ");
+            }
         }
 
         // L2
