@@ -351,25 +351,26 @@ public class Main {
         // if it is miss for L1D
         if(!isHit(L1setIndex, L1E, L1D, L1tag, 2)){
             missCount_L1D++;
+            // if there is empty line
             if(isContainEmptyLine(L1setIndex, L1E, L1D)){
                 lineIndex = findEmptyLineIndex(L1setIndex, L1E, L1D);
                 count[1][1]++;
             }
-            else{
+            else{ // if there is no empty line, there is eviction
                 evictionCount_L1D++;
                 count[1][2]++;
                 lineIndex = findEvictionLine(L1setIndex, L1E, L1D);
             }
 
-            L1D[L1setIndex][lineIndex][0] = L1tag;
-            L1D[L1setIndex][lineIndex][1] = findTime(L1setIndex, L1E, L1D);
-            L1D[L1setIndex][lineIndex][2] = "1";
+            L1D[L1setIndex][lineIndex][0] = L1tag;  // update tag
+            L1D[L1setIndex][lineIndex][1] = findTime(L1setIndex, L1E, L1D); // update time
+            L1D[L1setIndex][lineIndex][2] = "1"; // flip index bit to 1
 
+            // Add data from RAM to cache
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
             int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
             L1D[L1setIndex][lineIndex][3] = ram.get(addressToIndex(address)).substring(blocksize);
-
         }
         else{
             count[1][0] ++;
@@ -380,19 +381,20 @@ public class Main {
         // if it is miss for L2
         if(!isHit(L2setIndex, L2E, L2, L2tag, 3)){
             missCount_L2++;
+            // if there is empty line
             if(isContainEmptyLine(L2setIndex, L2E, L2)){
                 lineIndex = findEmptyLineIndex(L2setIndex, L2E, L2);
                 count[2][1]++;
             }
-            else {
+            else {  // if there is no empty line, there is eviction
                 evictionCount_L2++;
                 count[2][2]++;
                 lineIndex = findEvictionLine(L2setIndex, L2E, L2);
             }
 
-            L2[L2setIndex][lineIndex][0] = L2tag;
-            L2[L2setIndex][lineIndex][1] = findTime(L2setIndex, L2E, L2);
-            L2[L1setIndex][lineIndex][2] = "1";
+            L2[L2setIndex][lineIndex][0] = L2tag; // update tag
+            L2[L2setIndex][lineIndex][1] = findTime(L2setIndex, L2E, L2);  // update time
+            L2[L1setIndex][lineIndex][2] = "1"; // flip index bit to 1
 
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
@@ -406,7 +408,7 @@ public class Main {
     }
 
 
-    // Method to check if the set contains empty line
+    // Method to check if the given set contains empty line
     public static boolean isContainEmptyLine(int S, int E, String cache[][][]){
         boolean isContain = false;
         for(int i = 0; i < E; i++){
@@ -416,7 +418,7 @@ public class Main {
         return isContain;
     }
 
-    // Method to find empty line inside the set
+    // Method to find empty line inside the given set
     public static int findEmptyLineIndex(int S, int E, String cache[][][]){
         int index = 0;
         for(int i = 0; i < E; i++){
@@ -426,7 +428,8 @@ public class Main {
         return index;
     }
 
-    // Method to find line for eviction in that set
+    // Method to find line for eviction in the given set
+    // whose time value is smaller, this one is the eviction line (FIFO)
     public static int findEvictionLine(int S, int E, String cache[][][]){
         int index = 0;
         int min = Integer.parseInt(cache[S][0][1]);
@@ -440,6 +443,7 @@ public class Main {
         }
         return index;
     }
+
 
     public static String findTime(int S, int E, String cache[][][]){
         int time = 0;
