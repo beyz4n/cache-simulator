@@ -148,6 +148,100 @@ public class Main {
 
 
     }
+
+    public static void printMessage(int count[][], String instruction){
+
+        // L1D
+        if(count[1][0] == 0){
+            if(count[1][1] != 0){
+                System.out.print("L1D miss, ");
+            }
+        }
+        else{
+            if(count[1][1] != 0){
+                System.out.print("L1D miss, L1D hit, ");
+            }
+            else{
+                System.out.print("L1D hit, ");
+            }
+        }
+
+        // L1I
+        if(count[0][0] == 0){
+            if(count[0][1] != 0){
+                System.out.print("L1I miss, ");
+            }
+        }
+        else{
+            System.out.print("L1I hit, ");
+        }
+
+        // L2
+        if(count[2][0] == 0){
+            if(count[2][1] != 0){
+                System.out.println(" L2 miss");
+            }
+        }
+        else{
+            if(count[2][1] != 0){
+                System.out.println(" L2 miss, L2 hit");
+            }
+            else{
+                System.out.println("L2 hit");
+            }
+        }
+
+
+        if(instruction == "L"){
+            if(count[2][1] != 0 && count[1][1] != 0){
+                if(L2s == 0)
+                    System.out.print("Already placed in L2, ");
+                else
+                    System.out.print("Already placed in L2 set " + count[2][3] + ", ");
+
+                if(L1s == 0)
+                    System.out.println(" L1D");
+                else
+                    System.out.println(" L1D set " + count[1][3]);
+            }
+
+            if(count[2][1] != 0 && count[1][1] == 0){
+                if(L1s == 0)
+                    System.out.print("Placed in L1D ");
+                else
+                    System.out.print("Placed in L1D set " + count[1][3]);
+            }
+
+            if(count[2][1] == 0 && count[1][1] != 0){
+                if(L2s == 0)
+                    System.out.print("Placed in L2 ");
+                else
+                    System.out.print("Placed in L2 set " + count[1][3]);
+            }
+
+            if(count[2][1] == 0 && count[1][1] == 0){
+                System.out.print("Placed in ");
+                if(count[1][1] == 0){
+                    if(L1s == 0)
+                        System.out.print("L1D ,");
+                    else
+                        System.out.print("L1D set " + count[1][3] + ", ");
+                }
+                if(count[2][1] == 0){
+                    if(L2s == 0)
+                        System.out.print("L2 ");
+                    else
+                        System.out.print("L2 set " + count[1][3]);
+                }
+            }
+        }
+
+
+
+
+
+    }
+
     public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
         for(int i = 0; i< Math.pow(2, ls); i++){
             for(int j = 0; (j < le); j++){
@@ -192,18 +286,21 @@ public class Main {
     }
 
     public static int[][] modifyData(String address, String size, String data){
-        int[][] totalCount = {{0,0,0},{0,0,0},{0,0,0}};
-        int[][] count1 = loadInstruction(address,size); //firstly call function to load instruction
-        int[][] count2 = data_load(address, size);   //then call function to load data
-        int[][] count3 = storeData(address,size,data); //then call function to store data
+        int[][] totalCount = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+        int[][] count1 = data_load(address, size);   // first call function to load data
+        int[][] count2 = storeData(address,size,data); //then call function to store data
+
         for(int i = 0 ; i < 3; i++){
-            totalCount[0][i] = count1[0][i] +  count2[0][i] +  count3[0][i] ;
-            totalCount[1][i] = count1[1][i] +  count2[1][i] +  count3[1][i] ;
+            totalCount[1][i] = count1[1][i] +  count2[1][i];
+            totalCount[2][i] = count1[2][i] +  count2[2][i];
         }
+        totalCount[1][3] = count1[1][3];
+        totalCount[2][3] = count1[2][3];
+
         return totalCount;
     }
     public static int[][] storeData(String address, String size, String data){
-        int[][] count = {{0,0,0},{0,0,0},{0,0,0}};
+        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
         int L1setIndex = calculate_set_index(L1s, L1b, address); //calculates set value of the address for L1
         int L2setIndex = calculate_set_index(L2s, L2b, address); //calculates set value of the address for L2
         String L1tag = calculate_tag(L1s, L1b, address); //calculates tag value of the address for L1
@@ -218,11 +315,12 @@ public class Main {
             int L1eIndex = getLine(L1s,L1E, L1I, L1tag); //calculate e index
             modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex); //write data to cache
             count[0][0]++;
-
+            count[0][3] = L1setIndex;
         }
         else{
             missCount_L1I++;
             count[0][1]++;
+            count[0][3] = L1setIndex;
         }
         //If there is a hit in L1D
         if(isHit(L1setIndex,L1E, L1D, L1tag,2)){
@@ -234,10 +332,12 @@ public class Main {
             modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
 
            count[1][0]++;
+            count[1][3] = L1setIndex;
         }
         else{
             missCount_L1D++;
             count[1][1]++;
+            count[1][3] = L1setIndex;
         }
         //ıf there is a hit in L2
         if(isHit(L1setIndex,L2E, L2, L2tag, 3)){
@@ -248,15 +348,15 @@ public class Main {
             int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
             modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
             count[2][0]++;
-
+            count[2][3] = L2setIndex;
         }
         else {
             missCount_L2++;
             count[2][1]++;
+            count[2][3] = L2setIndex;
         }
         if(!isHit(L1setIndex,L1E, L1I, L1tag, 1) && !isHit(L1setIndex,L1E, L1D, L1tag, 2) && !isHit(L1setIndex,L2E, L2, L2tag, 3)){
             modifyRam(data,0, address);
-
         }
 
         return count;
@@ -282,16 +382,17 @@ public class Main {
     }
 
     public static int[][] loadInstruction(String address, String size){
-        int[][] count = {{0,0,0},{0,0,0},{0,0,0}};
+        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
         int L1setIndex = calculate_set_index(L1s, L1b, address);
         String L1tag = calculate_tag(L1s, L1b, address);
         int lineIndex;
+        count[0][3] = L1setIndex;
         // if it is miss for L1I
         if(!isHit(L1setIndex, L1E, L1I, L1tag, 2)){
             missCount_L1I++;
+            count[0][1]++;
             if(isContainEmptyLine(L1setIndex, L1E, L1I)){
                 lineIndex = findEmptyLineIndex(L1setIndex, L1E, L1I);
-                count[0][1]++;
             }
             else{
                 evictionCount_L1I++;
@@ -312,16 +413,16 @@ public class Main {
        else {
             count[0][0]++;
         }
-
         // check for L2
         int L2setIndex = calculate_set_index(L2s, L2b, address);
         String L2tag = calculate_tag(L2s, L2b, address);
+        count[2][3] = L2setIndex;
         // if it is miss for L2
         if(!isHit(L2setIndex, L2E, L2, L2tag, 3)) {
             missCount_L2++;
+            count[2][1]++;
             if (isContainEmptyLine(L2setIndex, L2E, L2)) {
                 lineIndex = findEmptyLineIndex(L2setIndex, L2E, L2);
-                count[2][1]++;
             } else {
                 evictionCount_L2++;
                 lineIndex = findEvictionLine(L2setIndex, L2E, L2);
@@ -343,18 +444,19 @@ public class Main {
     }
 
     public static int[][] data_load(String address, String size){
-        int[][] count = {{0,0,0},{0,0,0},{0,0,0}};
+        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
         // first check for L1
         int L1setIndex = calculate_set_index(L1s, L1b, address);
         String L1tag = calculate_tag(L1s, L1b, address);
         int lineIndex;
+        count[1][3] = L1setIndex;
         // if it is miss for L1D
         if(!isHit(L1setIndex, L1E, L1D, L1tag, 2)){
             missCount_L1D++;
+            count[1][1]++;
             // if there is empty line
             if(isContainEmptyLine(L1setIndex, L1E, L1D)){
                 lineIndex = findEmptyLineIndex(L1setIndex, L1E, L1D);
-                count[1][1]++;
             }
             else{ // if there is no empty line, there is eviction
                 evictionCount_L1D++;
@@ -378,24 +480,25 @@ public class Main {
         // check for L2
         int L2setIndex = calculate_set_index(L2s, L2b, address);
         String L2tag = calculate_tag(L2s, L2b, address);
+        count[2][3] = L2setIndex;
         // if it is miss for L2
         if(!isHit(L2setIndex, L2E, L2, L2tag, 3)){
             missCount_L2++;
+            count[2][1]++;
             // if there is empty line
             if(isContainEmptyLine(L2setIndex, L2E, L2)){
                 lineIndex = findEmptyLineIndex(L2setIndex, L2E, L2);
-                count[2][1]++;
             }
             else {  // if there is no empty line, there is eviction
                 evictionCount_L2++;
                 count[2][2]++;
                 lineIndex = findEvictionLine(L2setIndex, L2E, L2);
             }
-
             L2[L2setIndex][lineIndex][0] = L2tag; // update tag
             L2[L2setIndex][lineIndex][1] = findTime(L2setIndex, L2E, L2);  // update time
             L2[L1setIndex][lineIndex][2] = "1"; // flip index bit to 1
 
+            // Add data from RAM to cache
             String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
             String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
             int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
