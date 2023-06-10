@@ -2,7 +2,7 @@ import java.io.*;
 import java.lang.*;
 import java.util.*;
 
-public class Main {
+public class P3_150120047_150120077_150121068_150120061 {
 
     static int hitCount_L1I = 0; // storing l1i hit count
     static int missCount_L1I = 0; // storing l1i miss count
@@ -143,376 +143,6 @@ public class Main {
         ramOutput.close();
     }
 
-    // Method to print miss / hit behavior of caches for all instructions
-    public static void printMessage(int count[][], String instruction){
-
-        // For L1D
-        if(instruction.equalsIgnoreCase("L") || instruction.equalsIgnoreCase("M")
-                || instruction.equalsIgnoreCase("S")){
-            if(count[1][0] == 0){
-                if(count[1][1] != 0){
-                    System.out.print("L1D miss, ");
-                }
-            }
-            else{
-                if(count[1][1] != 0){
-                    System.out.print("L1D miss, L1D hit, ");
-                }
-                else{
-                    System.out.print("L1D hit, ");
-                }
-            }
-        }
-
-        // for L1I
-        if(instruction.equalsIgnoreCase("I")){
-            if(count[0][0] == 0){
-                if(count[0][1] != 0){
-                    System.out.print("L1I miss, ");
-                }
-            }
-            else{
-                System.out.print("L1I hit, ");
-            }
-        }
-
-        // For L2
-        if(count[2][0] == 0){
-            if(count[2][1] != 0){
-                System.out.println(" L2 miss");
-            }
-        }
-        else{
-            if(count[2][1] != 0){
-                System.out.println(" L2 miss, L2 hit");
-            }
-            else{
-                System.out.println("L2 hit");
-            }
-        }
-
-        if(instruction == "L"){ // Load data
-            if(count[2][1] != 0 && count[1][1] != 0){ // if it is miss for L1D and L2 caches
-                if(L2s == 0)
-                    System.out.print("Placed in L2, ");
-                else
-                    System.out.print("Placed in L2 set " + count[2][3] + ", ");
-
-                if(L1s == 0)
-                    System.out.println(" L1D");
-                else
-                    System.out.println(" L1D set " + count[1][3]);
-            }
-
-            if(count[2][1] != 0 && count[1][1] == 0){ // if it is only miss for L1D
-                if(L1s == 0)
-                    System.out.print("Placed in L1D ");
-                else
-                    System.out.print("Placed in L1D set " + count[1][3]);
-            }
-
-            if(count[2][1] == 0 && count[1][1] != 0){ // if it is only miss for L2
-                if(L2s == 0)
-                    System.out.print("Placed in L2 ");
-                else
-                    System.out.print("Placed in L2 set " + count[2][3]);
-            }
-
-            if(count[2][1] == 0 && count[1][1] == 0){ // if it is hit for all caches
-                System.out.print("Already placed in ");
-                if(count[1][1] == 0){
-                    if(L1s == 0)
-                        System.out.print("L1D ,");
-                    else
-                        System.out.print("L1D set " + count[1][3] + ", ");
-                }
-                if(count[2][1] == 0){
-                    if(L2s == 0)
-                        System.out.print("L2 ");
-                    else
-                        System.out.print("L2 set " + count[2][3]);
-                }
-            }
-        }
-
-        if(instruction == "I"){ // Load instruction
-            if(count[2][1] != 0 && count[0][1] != 0){ // if it is miss for L1I and L2 caches
-                if(L2s == 0)
-                    System.out.print("Placed in L2, ");
-                else
-                    System.out.print("Placed in L2 set " + count[2][3] + ", ");
-
-                if(L1s == 0)
-                    System.out.println(" L1I");
-                else
-                    System.out.println(" L1I set " + count[0][3]);
-            }
-
-            if(count[2][1] != 0 && count[0][1] == 0){ // if it is only miss for L1I
-                if(L1s == 0)
-                    System.out.print("Placed in L1I ");
-                else
-                    System.out.print("Placed in L1I set " + count[0][3]);
-            }
-
-            if(count[2][1] == 0 && count[0][1] != 0){ // if it is only miss for L2
-                if(L2s == 0)
-                    System.out.print("Placed in L2 ");
-                else
-                    System.out.print("Placed in L2 set " + count[2][3]);
-            }
-
-            if(count[2][1] == 0 && count[0][1] == 0){ // if it is hit for all caches
-                System.out.print("Already placed in ");
-                if(count[0][1] == 0){
-                    if(L1s == 0)
-                        System.out.print("L1I ,");
-                    else
-                        System.out.print("L1I set " + count[0][3] + ", ");
-                }
-                if(count[2][1] == 0){
-                    if(L2s == 0)
-                        System.out.print("L2 ");
-                    else
-                        System.out.print("L2 set " + count[2][3]);
-                }
-            }
-        }
-
-        if(instruction == "S"){ // Store
-            if(count[2][1] != 0 && count[0][1] != 0){ // if it is hit for L1D and L2
-                System.out.println("Store in L2, L1I, RAM");
-            }
-
-            if(count[2][1] != 0 && count[0][1] == 0){ // if it is only hit for L1D
-                System.out.println("Store in L1D, RAM");
-            }
-
-            if(count[2][1] == 0 && count[0][1] != 0){ // if it is only hit for L2
-                System.out.println("Store in L2, RAM");
-            }
-
-            if(count[2][1] == 0 && count[0][1] == 0){ // if it is miss for all caches
-                System.out.println("Store in RAM");
-            }
-        }
-
-        if(instruction == "M"){ // Modify
-            if(count[2][1] != 0 && count[1][1] != 0){ // if it is hit for L1D and L2
-                System.out.println("Modify in L2, L1D, RAM");
-            }
-
-            if(count[2][1] != 0 && count[1][1] == 0){ // if it is only hit for L1D
-                System.out.println("Modify in L1D, RAM");
-            }
-
-            if(count[2][1] == 0 && count[1][1] != 0){ // if it is only hit for L2
-                System.out.println("Modify in L2, RAM");
-            }
-
-            if(count[2][1] == 0 && count[1][1] == 0){ // if it is miss for all caches
-                System.out.println("Modify in RAM");
-            }
-        }
-    }
-
-    // this simple method is used to print the cache contents
-    public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
-        for(int i = 0; i< Math.pow(2, ls); i++){
-            for(int j = 0; (j < le); j++){
-                writer.println(cache[i][j][0] + " " + cache[i][j][1] + " " + cache[i][j][2] + " " + cache[i][j][3]); // initializing the cache
-            }
-        }
-    }
-
-    // this method is used to convert the hexadecimal address to its according integer index
-    public static int addressToIndex(String str){
-        String binaryStr = ""; hex2Binary(str);
-        int strLength = str.length();
-        for(int i = 0; i<strLength ; i++){
-            binaryStr += hex2Binary("" + str.charAt(i) ); // converting hexadecimal to binary
-        }
-        int index = binary2Decimal(binaryStr); // converting binary to integer
-        return index/8; // dividing by 8 to get the index
-    }
-
-    // this method is used to initialize the cache
-    public static String[][][] fillCacheWith0 (String[][][] temp ,int ls, int le){
-        for(int i = 0 ; i< ls; i++){
-            for(int j = 0 ; j < le ; j++){
-                for(int k = 0 ; k<4 ; k++){
-                    temp[i][j][k] = ""; // filling cache with ""
-                }
-            }
-
-        }
-        return temp;
-    }
-
-    // this method is used to convert 8 bit from unsigned int to hexadecimal
-    public static String byteToHex( String str ){
-        int temp = Integer.parseInt(str);
-        String tempStr = "";
-        for(int i = 0 ; i<8 ; i++){
-            tempStr = "" + (temp%2) + tempStr; // converting the 8 bit unsigned to binary
-            temp = temp/2;
-        }
-        tempStr = binary2Hex(tempStr); // converting from binary to hexadecimal
-        return tempStr;
-    }
-
-    public static int[][] modifyData(String address, String size, String data){
-        int[][] totalCount = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
-        int[][] count1 = data_load(address, size);   // first call function to load data
-        int[][] count2 = storeData_forModify(address,size,data); //then call function to store data
-
-        for(int i = 0 ; i < 3; i++){
-            totalCount[1][i] = count1[1][i] +  count2[1][i];
-            totalCount[2][i] = count1[2][i] +  count2[2][i];
-        }
-        totalCount[1][3] = count1[1][3];
-        totalCount[2][3] = count1[2][3];
-
-        return totalCount;
-    }
-
-    public static int[][] storeData_forModify(String address, String size, String data){
-        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
-        int L1setIndex = calculate_set_index(L1s, L1b, address); //calculates set value of the address for L1
-        int L2setIndex = calculate_set_index(L2s, L2b, address); //calculates set value of the address for L2
-        String L1tag = calculate_tag(L1s, L1b, address); //calculates tag value of the address for L1
-        String L2tag = calculate_tag(L2s, L2b, address); //calculates tag value of the address for L2
-        boolean isHit_L1I = isHit(L1setIndex,L1E, L1I, L1tag, 1);
-        boolean isHit_L1D = isHit(L1setIndex,L1E, L1D, L1tag,2);
-        boolean isHit_L2 = isHit(L1setIndex,L2E, L2, L2tag, 3);
-
-        //If there is a hit in L1D
-        if(isHit_L1D){
-            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
-            String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
-            int blocksize = binary2Decimal(block);  // change the value to decimal since we want to find the starting index of the data in the block
-            modifyRam(data, blocksize, address); //write data to memory
-            int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
-            modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
-
-            count[1][0]++;
-            count[1][3] = L1setIndex;
-        }
-        else{
-            missCount_L1D++;
-            count[1][1]++;
-            count[1][3] = L1setIndex;
-        }
-        //ıf there is a hit in L2
-        if(isHit_L2){
-            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
-            String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
-            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
-            modifyRam(data, blocksize, address); //write data to memory
-            int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
-            modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
-            count[2][0]++;
-            count[2][3] = L2setIndex;
-        }
-        else {
-            missCount_L2++;
-            count[2][1]++;
-            count[2][3] = L2setIndex;
-        }
-        if(!isHit_L1I && !isHit_L1D && !isHit_L2){
-            modifyRam(data,0, address);
-        }
-
-        return count;
-    }
-
-    public static int[][] storeData(String address, String size, String data){
-        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
-        int L1setIndex = calculate_set_index(L1s, L1b, address); //calculates set value of the address for L1
-        int L2setIndex = calculate_set_index(L2s, L2b, address); //calculates set value of the address for L2
-        String L1tag = calculate_tag(L1s, L1b, address); //calculates tag value of the address for L1
-        String L2tag = calculate_tag(L2s, L2b, address); //calculates tag value of the address for L2
-        boolean isHit_L1I = isHit(L1setIndex,L1E, L1I, L1tag, 1);
-        boolean isHit_L1D = isHit(L1setIndex,L1E, L1D, L1tag,2);
-        boolean isHit_L2 = isHit(L1setIndex,L2E, L2, L2tag, 3);
-
-
-        // If there is a hit in L1I
-        if(isHit_L1I){
-            String addressBinary = hex2Binary(address); //convert address from hexadecimal to binary
-            String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
-            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
-            modifyRam(data, blocksize, address); //write data to memory
-            int L1eIndex = getLine(L1s,L1E, L1I, L1tag); //calculate e index
-            modifyCache(L1I, blocksize, data, L1setIndex, L1eIndex); //write data to cache
-            count[0][0]++;
-            count[0][3] = L1setIndex;
-        }
-        else{
-            missCount_L1I++;
-            count[0][1]++;
-            count[0][3] = L1setIndex;
-        }
-        //If there is a hit in L1D
-        if(isHit_L1D){
-            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
-            String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
-            int blocksize = binary2Decimal(block);  // change the value to decimal since we want to find the starting index of the data in the block
-            modifyRam(data, blocksize, address); //write data to memory
-            int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
-            modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
-
-            count[1][0]++;
-            count[1][3] = L1setIndex;
-        }
-        else{
-            missCount_L1D++;
-            count[1][1]++;
-            count[1][3] = L1setIndex;
-        }
-        //ıf there is a hit in L2
-        if(isHit_L2){
-            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
-            String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
-            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
-            modifyRam(data, blocksize, address); //write data to memory
-            int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
-            modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
-            count[2][0]++;
-            count[2][3] = L2setIndex;
-        }
-        else {
-            missCount_L2++;
-            count[2][1]++;
-            count[2][3] = L2setIndex;
-        }
-        if(!isHit_L1I && !isHit_L1D && !isHit_L2){
-            modifyRam(data,0, address);
-        }
-
-        return count;
-    }
-
-    public static void modifyRam(String data, int blockSize, String address){
-
-        String ramData = ram.get(addressToIndex(address));  //get the data from memory
-        String temp = ramData.substring(0,blockSize); //write the first unchanging part of the data to temp
-        temp += data; //update temp with data
-        temp += ramData.substring(data.length() + ramData.substring(0, blockSize).length() ); //write the last unchanging part of the data to temp
-        String modifiedData = temp;
-        ram.set(addressToIndex(address), modifiedData); //update Ram
-    }
-
-    public static void modifyCache(String[][][] cache, int blockSize, String data, int setIndex, int eIndex){
-
-        String cacheData = cache[setIndex][eIndex][3]; //get cache data
-        String temp = cacheData.substring(0,blockSize);  //write the first unchanging part of the data to temp
-        temp += data; //update temp with data
-        temp += cacheData.substring(data.length() + cacheData.substring(0, blockSize).length() ); //write the last unchanging part of the data to temp
-        String modifiedData = temp;
-        cache[setIndex][eIndex][3] = modifiedData; //update Cache
-    }
-
     public static int[][] loadInstruction(String address, String size){
         int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
         int L1setIndex = calculate_set_index(L1s, L1b, address);
@@ -575,6 +205,7 @@ public class Main {
         return count;
     }
 
+    // Method for data load
     public static int[][] data_load(String address, String size){
         int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
         // first check for L1
@@ -642,6 +273,137 @@ public class Main {
         return count;
     }
 
+    // Method for the storing data
+    public static int[][] storeData(String address, String size, String data){
+        int[][] count = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+        int L1setIndex = calculate_set_index(L1s, L1b, address); //calculates set value of the address for L1
+        int L2setIndex = calculate_set_index(L2s, L2b, address); //calculates set value of the address for L2
+        String L1tag = calculate_tag(L1s, L1b, address); //calculates tag value of the address for L1
+        String L2tag = calculate_tag(L2s, L2b, address); //calculates tag value of the address for L2
+        boolean isHit_L1D = isHit(L1setIndex,L1E, L1D, L1tag,2);
+        boolean isHit_L2 = isHit(L1setIndex,L2E, L2, L2tag, 3);
+
+        //If there is a hit in L1D
+        if(isHit_L1D){
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L1b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block);  // change the value to decimal since we want to find the starting index of the data in the block
+            modifyRam(data, blocksize, address); //write data to memory
+            int L1eIndex = getLine(L1s,L1E, L1D, L1tag); //calculate e index
+            modifyCache(L1D, blocksize, data, L1setIndex, L1eIndex); //write data to cache
+
+            count[1][0]++;
+            count[1][3] = L1setIndex;
+        }
+        else{
+            missCount_L1D++;
+            count[1][1]++;
+            count[1][3] = L1setIndex;
+        }
+        //ıf there is a hit in L2
+        if(isHit_L2){
+            String addressBinary = hex2Binary(address);  //convert address from hexadecimal to binary
+            String block = addressBinary.substring(addressBinary.length() - L2b); //get the last b bits from the address
+            int blocksize = binary2Decimal(block); // change the value to decimal since we want to find the starting index of the data in the block
+            modifyRam(data, blocksize, address); //write data to memory
+            int L2eIndex = getLine(L2s,L2E, L2, L2tag); //calculate e index
+            modifyCache(L2, blocksize, data, L2setIndex, L2eIndex); //write data to cache
+            count[2][0]++;
+            count[2][3] = L2setIndex;
+        }
+        else {
+            missCount_L2++;
+            count[2][1]++;
+            count[2][3] = L2setIndex;
+        }
+        if(!isHit_L1D && !isHit_L2){
+            modifyRam(data,0, address);
+        }
+        return count;
+    }
+
+    // Method for modify data
+    public static int[][] modifyData(String address, String size, String data){
+        int[][] totalCount = {{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+        int[][] count1 = data_load(address, size);   // first call function to load data
+        int[][] count2 = storeData(address,size,data); //then call function to store data
+
+        for(int i = 0 ; i < 3; i++){
+            totalCount[1][i] = count1[1][i] +  count2[1][i];
+            totalCount[2][i] = count1[2][i] +  count2[2][i];
+        }
+        totalCount[1][3] = count1[1][3];
+        totalCount[2][3] = count1[2][3];
+
+        return totalCount;
+    }
+
+    // this simple method is used to print the cache contents
+    public static void printCache(String [][][] cache, int ls, int le, PrintWriter writer){
+        for(int i = 0; i< Math.pow(2, ls); i++){
+            for(int j = 0; (j < le); j++){
+                writer.println(cache[i][j][0] + " " + cache[i][j][1] + " " + cache[i][j][2] + " " + cache[i][j][3]); // initializing the cache
+            }
+        }
+    }
+
+    // this method is used to convert the hexadecimal address to its according integer index
+    public static int addressToIndex(String str){
+        String binaryStr = ""; hex2Binary(str);
+        int strLength = str.length();
+        for(int i = 0; i<strLength ; i++){
+            binaryStr += hex2Binary("" + str.charAt(i) ); // converting hexadecimal to binary
+        }
+        int index = binary2Decimal(binaryStr); // converting binary to integer
+        return index/8; // dividing by 8 to get the index
+    }
+
+    // this method is used to initialize the cache
+    public static String[][][] fillCacheWith0 (String[][][] temp ,int ls, int le){
+        for(int i = 0 ; i< ls; i++){
+            for(int j = 0 ; j < le ; j++){
+                for(int k = 0 ; k<4 ; k++){
+                    temp[i][j][k] = ""; // filling cache with ""
+                }
+            }
+
+        }
+        return temp;
+    }
+
+    // this method is used to convert 8 bit from unsigned int to hexadecimal
+    public static String byteToHex( String str ){
+        int temp = Integer.parseInt(str);
+        String tempStr = "";
+        for(int i = 0 ; i<8 ; i++){
+            tempStr = "" + (temp%2) + tempStr; // converting the 8 bit unsigned to binary
+            temp = temp/2;
+        }
+        tempStr = binary2Hex(tempStr); // converting from binary to hexadecimal
+        return tempStr;
+    }
+
+    // Method to modify data in RAM
+    public static void modifyRam(String data, int blockSize, String address){
+
+        String ramData = ram.get(addressToIndex(address));  //get the data from memory
+        String temp = ramData.substring(0,blockSize); //write the first unchanging part of the data to temp
+        temp += data; //update temp with data
+        temp += ramData.substring(data.length() + ramData.substring(0, blockSize).length() ); //write the last unchanging part of the data to temp
+        String modifiedData = temp;
+        ram.set(addressToIndex(address), modifiedData); //update Ram
+    }
+
+    // Method to modify data in cache
+    public static void modifyCache(String[][][] cache, int blockSize, String data, int setIndex, int eIndex){
+
+        String cacheData = cache[setIndex][eIndex][3]; //get cache data
+        String temp = cacheData.substring(0,blockSize);  //write the first unchanging part of the data to temp
+        temp += data; //update temp with data
+        temp += cacheData.substring(data.length() + cacheData.substring(0, blockSize).length() ); //write the last unchanging part of the data to temp
+        String modifiedData = temp;
+        cache[setIndex][eIndex][3] = modifiedData; //update Cache
+    }
 
     // Method to check if the given set contains empty line and cache
     public static boolean isContainEmptyLine(int S, int E, String cache[][][]){
@@ -826,4 +588,176 @@ public class Main {
         return decimal;
     }
 
+    // Method to print miss / hit behavior of caches for all instructions
+    public static void printMessage(int count[][], String instruction){
+
+        // For L1D
+        if(instruction.equalsIgnoreCase("L") || instruction.equalsIgnoreCase("M")
+                || instruction.equalsIgnoreCase("S")){
+            if(count[1][0] == 0){
+                if(count[1][1] != 0){
+                    System.out.print("L1D miss, ");
+                }
+            }
+            else{
+                if(count[1][1] != 0){
+                    System.out.print("L1D miss, L1D hit, ");
+                }
+                else{
+                    System.out.print("L1D hit, ");
+                }
+            }
+        }
+
+        // for L1I
+        if(instruction.equalsIgnoreCase("I")){
+            if(count[0][0] == 0){
+                if(count[0][1] != 0){
+                    System.out.print("L1I miss, ");
+                }
+            }
+            else{
+                System.out.print("L1I hit, ");
+            }
+        }
+
+        // For L2
+        if(count[2][0] == 0){
+            if(count[2][1] != 0){
+                System.out.println(" L2 miss");
+            }
+        }
+        else{
+            if(count[2][1] != 0){
+                System.out.println(" L2 miss, L2 hit");
+            }
+            else{
+                System.out.println("L2 hit");
+            }
+        }
+
+        if(instruction == "L"){ // Load data
+            if(count[2][1] != 0 && count[1][1] != 0){ // if it is miss for L1D and L2 caches
+                if(L2s == 0)
+                    System.out.print("Placed in L2, ");
+                else
+                    System.out.print("Placed in L2 set " + count[2][3] + ", ");
+
+                if(L1s == 0)
+                    System.out.println(" L1D");
+                else
+                    System.out.println(" L1D set " + count[1][3]);
+            }
+
+            if(count[2][1] != 0 && count[1][1] == 0){ // if it is only miss for L1D
+                if(L1s == 0)
+                    System.out.print("Placed in L1D ");
+                else
+                    System.out.print("Placed in L1D set " + count[1][3]);
+            }
+
+            if(count[2][1] == 0 && count[1][1] != 0){ // if it is only miss for L2
+                if(L2s == 0)
+                    System.out.print("Placed in L2 ");
+                else
+                    System.out.print("Placed in L2 set " + count[2][3]);
+            }
+
+            if(count[2][1] == 0 && count[1][1] == 0){ // if it is hit for all caches
+                System.out.print("Already placed in ");
+                if(count[1][1] == 0){
+                    if(L1s == 0)
+                        System.out.print("L1D ,");
+                    else
+                        System.out.print("L1D set " + count[1][3] + ", ");
+                }
+                if(count[2][1] == 0){
+                    if(L2s == 0)
+                        System.out.print("L2 ");
+                    else
+                        System.out.print("L2 set " + count[2][3]);
+                }
+            }
+        }
+
+        if(instruction == "I"){ // Load instruction
+            if(count[2][1] != 0 && count[0][1] != 0){ // if it is miss for L1I and L2 caches
+                if(L2s == 0)
+                    System.out.print("Placed in L2, ");
+                else
+                    System.out.print("Placed in L2 set " + count[2][3] + ", ");
+
+                if(L1s == 0)
+                    System.out.println(" L1I");
+                else
+                    System.out.println(" L1I set " + count[0][3]);
+            }
+
+            if(count[2][1] != 0 && count[0][1] == 0){ // if it is only miss for L1I
+                if(L1s == 0)
+                    System.out.print("Placed in L1I ");
+                else
+                    System.out.print("Placed in L1I set " + count[0][3]);
+            }
+
+            if(count[2][1] == 0 && count[0][1] != 0){ // if it is only miss for L2
+                if(L2s == 0)
+                    System.out.print("Placed in L2 ");
+                else
+                    System.out.print("Placed in L2 set " + count[2][3]);
+            }
+
+            if(count[2][1] == 0 && count[0][1] == 0){ // if it is hit for all caches
+                System.out.print("Already placed in ");
+                if(count[0][1] == 0){
+                    if(L1s == 0)
+                        System.out.print("L1I ,");
+                    else
+                        System.out.print("L1I set " + count[0][3] + ", ");
+                }
+                if(count[2][1] == 0){
+                    if(L2s == 0)
+                        System.out.print("L2 ");
+                    else
+                        System.out.print("L2 set " + count[2][3]);
+                }
+            }
+        }
+
+        if(instruction == "S"){ // Store
+            if(count[2][1] != 0 && count[0][1] != 0){ // if it is hit for L1D and L2
+                System.out.println("Store in L2, L1I, RAM");
+            }
+
+            if(count[2][1] != 0 && count[0][1] == 0){ // if it is only hit for L1D
+                System.out.println("Store in L1D, RAM");
+            }
+
+            if(count[2][1] == 0 && count[0][1] != 0){ // if it is only hit for L2
+                System.out.println("Store in L2, RAM");
+            }
+
+            if(count[2][1] == 0 && count[0][1] == 0){ // if it is miss for all caches
+                System.out.println("Store in RAM");
+            }
+        }
+
+        if(instruction == "M"){ // Modify
+            if(count[2][1] != 0 && count[1][1] != 0){ // if it is hit for L1D and L2
+                System.out.println("Modify in L2, L1D, RAM");
+            }
+
+            if(count[2][1] != 0 && count[1][1] == 0){ // if it is only hit for L1D
+                System.out.println("Modify in L1D, RAM");
+            }
+
+            if(count[2][1] == 0 && count[1][1] != 0){ // if it is only hit for L2
+                System.out.println("Modify in L2, RAM");
+            }
+
+            if(count[2][1] == 0 && count[1][1] == 0){ // if it is miss for all caches
+                System.out.println("Modify in RAM");
+            }
+        }
+    }
 }
